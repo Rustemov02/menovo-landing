@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function proxy(request: NextRequest) {
+  const host = request.headers.get("host") || "";
   const { pathname } = request.nextUrl;
+
+  // Redirect www to non-www
+  if (host === "www.menovo.rest") {
+    const url = request.nextUrl.clone();
+    url.host = "menovo.rest";
+    return NextResponse.redirect(url, 301);
+  }
 
   const isPublicSlug =
     pathname.length > 1 &&
