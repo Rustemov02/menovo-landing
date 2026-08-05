@@ -1,14 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/:slug((?!admin|login|_next|api|favicon.ico).*)",
-        destination: "https://admin.menovo.rest/:slug*",
-      },
-    ];
-  },
+  // Proxy rules are defined in app/proxy.ts
 };
 
 export default nextConfig;
