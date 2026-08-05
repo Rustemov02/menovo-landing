@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/:slug*",
+        source: "/:slug((?!admin|login|_next|api|favicon.ico).*)",
         destination: "https://admin.menovo.rest/:slug*",
       },
     ];
