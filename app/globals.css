@@ -1,31 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: #f8f9fa;
+  --color-foreground: #191c1d;
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+
+  /* Design palette */
+  --color-outline-variant: #e5beb3;
+  --color-on-primary: #ffffff;
+  --color-on-surface: #191c1d;
+  --color-surface-container: #edeeef;
+  --color-on-secondary: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-primary: #ab2e00;
+  --color-on-surface-variant: #5c4038;
+  --color-on-tertiary: #ffffff;
+  --color-on-error: #ffffff;
+  --color-surface-tint: #af3000;
+  --color-surface-container-low: #f3f4f5;
+  --color-secondary-fixed: #e2e2e5;
+  --color-on-secondary-container: #636467;
+  --color-secondary-container: #e2e2e5;
+  --color-on-secondary-fixed: #1a1c1e;
+  --color-inverse-on-surface: #f0f1f2;
+  --color-tertiary-fixed: #69ff87;
+  --color-surface-container-high: #e7e8e9;
+  --color-outline: #916f66;
+  --color-on-tertiary-container: #f7fff2;
+  --color-inverse-surface: #2e3132;
+  --color-on-error-container: #93000a;
+  --color-surface-container-highest: #e1e3e4;
+  --color-surface: #f8f9fa;
+  --color-primary-fixed-dim: #ffb59f;
+  --color-inverse-primary: #ffb59f;
+  --color-surface-variant: #e1e3e4;
+  --color-secondary-fixed-dim: #c6c6c9;
+  --color-surface-bright: #f8f9fa;
+  --color-primary-fixed: #ffdbd1;
+  --color-on-secondary-fixed-variant: #454749;
+  --color-on-primary-fixed: #3b0a00;
+  --color-on-background: #191c1d;
+  --color-surface-container-lowest: #ffffff;
+  --color-primary-container: #d63c00;
+  --color-tertiary-fixed-dim: #3ce36a;
+  --color-secondary: #5d5e61;
+  --color-on-tertiary-fixed-variant: #00531e;
+  --color-on-tertiary-fixed: #002108;
+  --color-on-primary-container: #fffbff;
+  --color-on-primary-fixed-variant: #862200;
+  --color-tertiary: #006b29;
+  --color-error: #ba1a1a;
+  --color-tertiary-container: #008735;
+  --color-surface-dim: #d9dadb;
+
+  /* Custom spacing */
+  --spacing-sm: 8px;
+  --spacing-xs: 4px;
+  --spacing-margin-mobile: 16px;
+  --spacing-lg: 24px;
+  --spacing-md: 16px;
+  --spacing-xl: 40px;
+  --spacing-gutter: 16px;
+  --spacing-margin-desktop: 32px;
+  --spacing-base: 4px;
+
+  /* Custom font families */
+  --font-headline-md: "Inter", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-headline-lg-mobile: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
+  --font-kds-timer: "Inter", sans-serif;
+  --font-headline-lg: "Inter", sans-serif;
+
+  /* Custom font sizes */
+  --text-headline-md: 20px;
+  --text-headline-md--line-height: 28px;
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--line-height: 32px;
+  --text-headline-lg-mobile--letter-spacing: -0.01em;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.02em;
+  --text-kds-timer: 48px;
+  --text-kds-timer--line-height: 48px;
+  --text-kds-timer--letter-spacing: -0.04em;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.02em;
+
+  /* Custom border radius */
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #f8f9fa;
+  --foreground: #191c1d;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: max(884px, 100dvh);
 }
 
-/* Custom utilities from index.css */
+/* Custom utilities */
 @layer base {
   *,
   *::before,
@@ -53,6 +142,11 @@ body {
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
   vertical-align: middle;
+}
+
+.active-category {
+  background-color: #ab2e00;
+  color: #ffffff;
 }
 
 /* Animations */
