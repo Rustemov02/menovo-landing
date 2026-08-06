@@ -35,15 +35,16 @@ export default async function MenuPage({
   const data = await getMenu(slug);
   const { restaurant, menu } = data;
 
-  const grouped = menu.reduce<Record<string, MenuItem[]>>(
-    (acc, item) => {
-      const category = item.category || "Digər";
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(item);
-      return acc;
-    },
-    {},
-  );
+  console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+  console.log("Slug:", slug);
+  console.log("DATA : ", restaurant, menu);
+
+  const grouped = menu?.reduce<Record<string, MenuItem[]>>((acc, item) => {
+    const category = item.category || "Digər";
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(item);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen bg-white">
@@ -121,7 +122,7 @@ export default async function MenuPage({
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {Object.keys(grouped).length === 0 ? (
+        {Object.keys(grouped || {}).length === 0 ? (
           <div className="text-center py-20">
             <p className="text-xl text-gray-500">Menyu məhsulları yoxdur.</p>
           </div>
