@@ -2,6 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuItem, RestaurantInfo } from "@/types";
+import {
+  Check,
+  ChevronRight,
+  Navigation,
+  Plus,
+  Search,
+  ShoppingBasket,
+  ShoppingCart,
+  X,
+} from "lucide-react";
 
 function AddButton() {
   const [clicked, setClicked] = useState(false);
@@ -19,9 +29,7 @@ function AddButton() {
           : "bg-primary text-on-primary"
       }`}
     >
-      <span className="material-symbols-outlined">
-        {clicked ? "check" : "add"}
-      </span>
+      {clicked ? <Check size={18} /> : <Plus size={18} />}
     </button>
   );
 }
@@ -111,9 +119,10 @@ function CategoryTabs({
       {/* Dinamik Search Bar */}
       <div className="px-margin-mobile pt-3 pb-2">
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
-            search
-          </span>
+          <Search
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+          />
           <input
             type="search"
             value={search}
@@ -128,9 +137,7 @@ function CategoryTabs({
               aria-label="Axtarışı təmizlə"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant p-1.5 rounded-full hover:bg-surface-variant transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px]">
-                close
-              </span>
+              <X size={20} />
             </button>
           )}
         </div>
@@ -264,12 +271,9 @@ export default function MenuClient({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute top-4 w-full px-4 flex justify-between items-center z-10">
-            {/* <button className="p-2 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-colors duration-200">
-              <span className="material-symbols-outlined">search</span>
-            </button> */}
             {systemMode !== "VIEWER_ONLY" && (
               <button className="p-2 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-colors duration-200">
-                <span className="material-symbols-outlined">shopping_cart</span>
+                <ShoppingCart size={20} />
               </button>
             )}
           </div>
@@ -395,9 +399,7 @@ export default function MenuClient({
           <button className="w-full h-16 bg-on-background text-background rounded-2xl flex items-center justify-between px-6 shadow-2xl transition-transform active:scale-95 group">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <span className="material-symbols-outlined text-[28px]">
-                  shopping_basket
-                </span>
+                <ShoppingBasket size={28} />
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-on-background font-bold">
                   2
                 </span>
@@ -413,7 +415,7 @@ export default function MenuClient({
             </div>
             <div className="flex items-center gap-2 group-hover:translate-x-1 transition-transform">
               <span className="font-label-sm text-label-sm">Səbətə bax</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <ChevronRight size={20} />
             </div>
           </button>
         </div>
@@ -436,7 +438,7 @@ export default function MenuClient({
                 onClick={() => setSelectedItem(null)}
                 className="text-on-surface-variant p-2 rounded-full hover:bg-surface-variant transition-colors"
               >
-                <span className="material-symbols-outlined">X</span>
+                <X size={20} />
               </button>
             </div>
             <div className="space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
@@ -468,9 +470,7 @@ export default function MenuClient({
                     }}
                     className="px-6 py-3 bg-primary text-on-primary rounded-full font-label-sm text-label-sm flex items-center gap-2 hover:bg-primary/90 transition-colors"
                   >
-                    <span className="material-symbols-outlined">
-                      add_shopping_cart
-                    </span>
+                    <ShoppingCart size={20} />
                     Səbətə əlavə et
                   </button>
                 )}
@@ -506,7 +506,7 @@ export default function MenuClient({
             onClick={() => setIsModalOpen(false)}
             className="text-on-surface-variant p-2 rounded-full hover:bg-surface-variant transition-colors"
           >
-            <span className="material-symbols-outlined">X</span>
+            <X size={20} />
           </button>
         </div>
         <div className="space-y-6 max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
@@ -518,28 +518,12 @@ export default function MenuClient({
           {restaurant.address && (
             <div className="p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm">
               <div className="flex items-center gap-3 mb-3">
-                {/* <span className="material-symbols-outlined text-primary">
-                  location_on
-                </span> */}
                 <span className="font-bold text-on-surface">Ünvan</span>
               </div>
               <p className="text-sm text-on-surface-variant mb-4">
                 {restaurant.address}
               </p>
               <div className="flex gap-3">
-                {/* {restaurant.googleMapsUrl && (
-                  <a
-                    href={restaurant.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs font-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      map
-                    </span>{" "}
-                    Google Maps
-                  </a>
-                )} */}
                 {restaurant.wazeUrl && (
                   <a
                     href={restaurant.wazeUrl}
@@ -547,9 +531,7 @@ export default function MenuClient({
                     rel="noopener noreferrer"
                     className="flex-1 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-xs font-bold flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[18px]">
-                      navigation
-                    </span>{" "}
+                    <Navigation size={18} />{" "}
                     Waze
                   </a>
                 )}
@@ -559,9 +541,6 @@ export default function MenuClient({
           {restaurant.workingHours && (
             <div className="flex justify-between items-center p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm">
               <div className="flex items-center gap-3">
-                {/* <span className="material-symbols-outlined text-primary">
-                  schedule
-                </span> */}
                 <span className="font-bold text-on-surface">İş saatları</span>
               </div>
               <span className="text-sm text-on-surface-variant">
@@ -572,9 +551,6 @@ export default function MenuClient({
           {restaurant.wifiSsid && (
             <div className="p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm">
               <div className="flex items-center gap-3 mb-3">
-                {/* <span className="material-symbols-outlined text-primary">
-                  wifi
-                </span> */}
                 <span className="font-bold text-on-surface">Qonaq Wi-Fi</span>
               </div>
               <div className="flex justify-between items-center bg-surface-container p-3 rounded-xl">
@@ -634,14 +610,6 @@ export default function MenuClient({
                 </svg>
               </a>
             )}
-            {/* {restaurant.phone && (
-              <a
-                href={`tel:${restaurant.phone}`}
-                className="w-12 h-12 rounded-full bg-surface-container-lowest border border-surface-container-low shadow-sm flex items-center justify-center text-primary hover:bg-surface-variant transition-colors"
-              >
-                <span className="material-symbols-outlined">call</span>
-              </a>
-            )} */}
           </div>
         </div>
       </div>

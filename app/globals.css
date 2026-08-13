@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
 @theme inline {
@@ -139,11 +138,6 @@ body {
   }
 }
 
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-  vertical-align: middle;
-}
-
 .active-category {
   background-color: #ab2e00;
   color: #ffffff;
@@ -187,20 +181,4 @@ body {
 
 .animate-fadeIn {
   animation: fadeIn 0.6s ease-out forwards;
-}
-
-
-
-/* İkonların olduğu elementlər üçün əsas class */
-.material-icons, .material-icons-outlined {
-  /* Şrift yüklənənə qədər görünməz etmək üçün 'visibility' istifadə edirik.
-     Bu, elementin yerini saxlayır, lakin özünü gizlədir.
-     Alternativ olaraq 'opacity: 0' istifadə etmək olar. */
-  visibility: hidden;
-}
-
-/* Şrift yükləndikdən sonra brauzer avtomatik olaraq bu class-ı tətbiq edir */
-.material-icons.wf-active,
-.material-icons-outlined.wf-active {
-  visibility: visible;
 }
