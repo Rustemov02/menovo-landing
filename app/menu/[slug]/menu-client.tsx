@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MenuItem, RestaurantInfo } from "@/types";
 
 function AddButton() {
@@ -26,40 +26,139 @@ function AddButton() {
   );
 }
 
+function MenuItemCard({
+  item,
+  systemMode,
+  onSelect,
+}: {
+  item: MenuItem;
+  systemMode: string;
+  onSelect: (item: MenuItem) => void;
+}) {
+  const hasImage = Boolean(item.image);
+
+  const content = (
+    <>
+      <h3 className="font-headline-md text-headline-md text-on-surface">
+        {item.name}
+      </h3>
+      {item.description && (
+        <p className="font-body-md text-body-md text-on-surface-variant mt-1 line-clamp-2">
+          {item.description}
+        </p>
+      )}
+    </>
+  );
+
+  return (
+    <div
+      onClick={() => onSelect(item)}
+      className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container-low transition-transform active:scale-[0.98] cursor-pointer"
+    >
+      {hasImage ? (
+        <div className="flex">
+          <div className="w-32 h-32 flex-shrink-0 overflow-hidden">
+            <img
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover"
+              alt={item.name}
+              src={item.image}
+            />
+          </div>
+          <div className="p-4 flex flex-col justify-between flex-grow min-w-0">
+            <div>{content}</div>
+            <div className="flex justify-between items-center mt-2">
+              <span className="font-bold text-primary font-body-lg text-body-lg">
+                {(item.price ?? 0).toFixed(2)} AZN
+              </span>
+              {systemMode !== "VIEWER_ONLY" && <AddButton />}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 flex items-center gap-3">
+          <div className="flex-1 min-w-0">{content}</div>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <span className="font-bold text-primary font-body-lg text-body-lg whitespace-nowrap">
+              {(item.price ?? 0).toFixed(2)} AZN
+            </span>
+            {systemMode !== "VIEWER_ONLY" && <AddButton />}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CategoryTabs({
   categories,
   activeCategory,
+  search,
+  onSearchChange,
   onSelect,
 }: {
   categories: string[];
   activeCategory: string;
+  search: string;
+  onSearchChange: (v: string) => void;
   onSelect: (cat: string) => void;
 }) {
   const allCategories = ["Hamısı", ...categories];
 
   return (
-    <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur-md py-4 shadow-sm border-b border-surface-variant">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar px-margin-mobile">
-        {allCategories.map((category) => (
-          <button
-            key={category}
-            onClick={() => {
-              onSelect(category);
-              if (window.navigator.vibrate) {
-                window.navigator.vibrate(10);
-              }
-            }}
-            className={`whitespace-nowrap px-6 py-2 rounded-full font-label-sm text-label-sm transition-all duration-200 ${
-              activeCategory === category
-                ? "active-category"
-                : "bg-surface-container-high text-on-surface-variant hover:bg-surface-variant"
-            }`}
-          >
-            {category}
-          </button>
-        ))}
+    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md shadow-sm border-b border-surface-variant">
+      {/* Dinamik Search Bar */}
+      <div className="px-margin-mobile pt-3 pb-2">
+        <div className="relative">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
+            search
+          </span>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Məhsul və ya təsvir üzrə axtar..."
+            className="w-full h-11 pl-10 pr-10 rounded-2xl bg-surface-container-high text-on-surface text-body-md placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => onSearchChange("")}
+              aria-label="Axtarışı təmizlə"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant p-1.5 rounded-full hover:bg-surface-variant transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                close
+              </span>
+            </button>
+          )}
+        </div>
       </div>
-    </nav>
+      {/* Üfüqi scroll oluna bilən kateqoriya barı */}
+      <nav className="pb-3">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar px-margin-mobile">
+          {allCategories.map((category) => (
+            <button
+              key={category}
+              onClick={() => {
+                onSelect(category);
+                if (window.navigator.vibrate) {
+                  window.navigator.vibrate(10);
+                }
+              }}
+              className={`whitespace-nowrap px-6 py-2 rounded-full font-label-sm text-label-sm transition-all duration-200 ${
+                activeCategory === category
+                  ? "active-category"
+                  : "bg-surface-container-high text-on-surface-variant hover:bg-surface-variant"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -74,25 +173,79 @@ export default function MenuClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [search, setSearch] = useState("");
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const grouped = menu?.reduce<Record<string, MenuItem[]>>((acc, item) => {
-    const category = item.category || "Digər";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(item);
-    return acc;
-  }, {});
+  const grouped = useMemo(() => {
+    return (menu || []).reduce<Record<string, MenuItem[]>>((acc, item) => {
+      const category = item.category || "Digər";
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(item);
+      return acc;
+    }, {});
+  }, [menu]);
 
   const categories = Object.keys(grouped || {});
 
-  if (categories.length > 0 && !activeCategory) {
-    setActiveCategory(categories[0]);
-  }
+  const normalizedSearch = search.trim().toLowerCase();
+  const searching = normalizedSearch.length > 0;
 
-  const filteredCategories =
-    activeCategory === `Hamısı`
-      ? categories
-      : categories.filter((c) => c === activeCategory);
+  const searchResults = useMemo(() => {
+    if (!searching) return [];
+    return (menu || []).filter(
+      (item) =>
+        item.name.toLowerCase().includes(normalizedSearch) ||
+        (item.description || "").toLowerCase().includes(normalizedSearch),
+    );
+  }, [menu, searching, normalizedSearch]);
+
+  // Modal açıq olduqda arxa fonda body scroll-u kilidlə (scroll bleed-in qarşısını alır)
+  useEffect(() => {
+    if (selectedItem || isModalOpen) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = original;
+      };
+    }
+  }, [selectedItem, isModalOpen]);
+
+  // Scroll-spy: istifadəçi aşağı scroll etdikcə aktiv kateqoriyanı avtomatik highlight et
+  useEffect(() => {
+    if (searching || categories.length === 0) return;
+    const LINE = 170; // sticky toolbar hündürlüyü
+    const update = () => {
+      let current = "";
+      for (const cat of categories) {
+        const el = sectionRefs.current[cat];
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= LINE) current = cat;
+      }
+      if (!current) current = categories[0];
+      setActiveCategory((prev) => (prev === current ? prev : current));
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [categories, searching]);
+
+  const handleSelectCategory = (cat: string) => {
+    if (searching) return;
+    if (cat === "Hamısı") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const el = sectionRefs.current[cat];
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 165;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    }
+  };
 
   return (
     <div
@@ -103,6 +256,7 @@ export default function MenuClient({
           <img
             alt="Restaurant interior"
             className="w-full h-full object-cover"
+            decoding="async"
             src={
               restaurant.coverImage ||
               "https://lh3.googleusercontent.com/aida-public/AB6AXuAC7pGIwOZtAlasOgXdYnlJQVoDgc512RGr-NUR13Q5kHpZK1iSqedEIVyHGLyE8UWiXIYzDJkdAhgxcBApyrTZpVs0Mxbggn-Cg4c0ixJ9_q1G-ga7OucWlGh76lHhkoerpIxtAtxz2CtZPc-hWgFeYO8swX5w0F4x32XJIWW7l5p97GB_YXaknwxevaRSFaGWBKIpA77fKQtZtLk1Qy5VbExTCVgPPoUw8DNV8QCCRPHMxMK6VtEc"
@@ -125,6 +279,8 @@ export default function MenuClient({
                 <img
                   alt="Restaurant Logo"
                   className="w-full h-full object-cover rounded-full"
+                  loading="lazy"
+                  decoding="async"
                   src={restaurant.logo}
                 />
               </div>
@@ -172,55 +328,64 @@ export default function MenuClient({
           </div>
         </div>
 
-        {categories.length > 0 && (
-          <CategoryTabs
-            categories={categories}
-            activeCategory={activeCategory}
-            onSelect={setActiveCategory}
-          />
-        )}
+        <CategoryTabs
+          categories={categories}
+          activeCategory={activeCategory}
+          search={search}
+          onSearchChange={setSearch}
+          onSelect={handleSelectCategory}
+        />
 
-        <div className="px-margin-mobile mt-6 space-y-4">
-          {Object.keys(grouped || {}).length === 0 ? (
+        <div className="px-margin-mobile mt-6 space-y-8">
+          {searching ? (
+            searchResults.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-xl text-on-surface-variant">
+                  Axtarış üzrə heç bir nəticə tapılmadı.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {searchResults.map((item) => (
+                  <MenuItemCard
+                    key={item._id}
+                    item={item}
+                    systemMode={systemMode}
+                    onSelect={setSelectedItem}
+                  />
+                ))}
+              </div>
+            )
+          ) : Object.keys(grouped || {}).length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-on-surface-variant">
                 Menyu məhsulları yoxdur.
               </p>
             </div>
           ) : (
-            filteredCategories.map((category) =>
-              (grouped?.[category] || []).map((item) => (
-                <div
-                  key={item._id}
-                  onClick={() => setSelectedItem(item)}
-                  className="flex bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container-low transition-transform active:scale-[0.98] cursor-pointer"
-                >
-                  <div className="w-32 h-32 flex-shrink-0">
-                    <img
-                      className="w-full h-full object-cover"
-                      alt={item.name}
-                      src={item.image || ""}
+            categories.map((category) => (
+              <section
+                key={category}
+                ref={(el) => {
+                  sectionRefs.current[category] = el;
+                }}
+                className="scroll-mt-40"
+              >
+                <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-3">
+                  {category}
+                </h2>
+                <div className="space-y-4">
+                  {(grouped?.[category] || []).map((item) => (
+                    <MenuItemCard
+                      key={item._id}
+                      item={item}
+                      systemMode={systemMode}
+                      onSelect={setSelectedItem}
                     />
-                  </div>
-                  <div className="p-4 flex flex-col justify-between flex-grow">
-                    <div>
-                      <h3 className="font-headline-md text-headline-md text-on-surface">
-                        {item.name}
-                      </h3>
-                      <p className="font-body-md text-body-md text-on-surface-variant mt-1 line-clamp-2">
-                        {item.description}
-                      </p>
-                    </div>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="font-bold text-primary font-body-lg text-body-lg">
-                        {(item.price ?? 0).toFixed(2)} AZN
-                      </span>
-                      {systemMode !== "VIEWER_ONLY" && <AddButton />}
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              )),
-            )
+              </section>
+            ))
           )}
         </div>
       </main>
@@ -277,6 +442,8 @@ export default function MenuClient({
             <div className="space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
               {selectedItem.image && (
                 <img
+                  loading="lazy"
+                  decoding="async"
                   src={selectedItem.image}
                   alt={selectedItem.name}
                   className="w-full h-48 object-cover rounded-2xl"

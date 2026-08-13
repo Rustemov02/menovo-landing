@@ -1,34 +1,53 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="animate-pulse">
-          <div className="flex items-start gap-6 mb-10">
-            <div className="h-20 w-20 rounded-2xl bg-gray-200 flex-shrink-0" />
-            <div className="flex-1 space-y-3 pt-1">
-              <div className="h-8 w-64 bg-gray-200 rounded" />
-              <div className="h-4 w-80 bg-gray-200 rounded" />
-            </div>
+    <div className="min-h-screen bg-background text-on-background">
+      <div className="animate-pulse">
+        {/* Cover skeleton */}
+        <div className="relative w-full h-64 bg-surface-container-high overflow-hidden">
+          <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent" />
+          <div className="absolute bottom-4 px-4 w-full">
+            <div className="h-8 w-48 bg-white/40 rounded-lg" />
+            <div className="mt-2 h-5 w-24 bg-white/30 rounded-md" />
           </div>
-          <div className="space-y-10">
-            {[1, 2].map((section) => (
-              <div key={section} className="space-y-4">
-                <div className="h-7 w-40 bg-gray-200 rounded" />
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl bg-white p-4 ring-1 ring-gray-200"
-                    >
-                      <div className="aspect-[4/3] rounded-xl bg-gray-200 mb-4" />
-                      <div className="h-5 w-3/4 bg-gray-200 rounded mb-2" />
-                      <div className="h-4 w-1/2 bg-gray-200 rounded" />
-                    </div>
-                  ))}
+        </div>
+
+        {/* Info chips skeleton */}
+        <div className="py-4 border-b border-surface-variant">
+          <div className="flex gap-2 px-margin-mobile">
+            <div className="h-9 w-24 rounded-full bg-surface-container-high" />
+            <div className="h-9 w-24 rounded-full bg-surface-container-high" />
+            <div className="h-9 w-24 rounded-full bg-surface-container-high" />
+          </div>
+        </div>
+
+        {/* Search + category bar skeleton */}
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-margin-mobile py-3 shadow-sm border-b border-surface-variant">
+          <div className="h-11 rounded-2xl bg-surface-container-high" />
+          <div className="flex gap-2 mt-3 overflow-hidden">
+            <div className="h-8 w-20 rounded-full bg-surface-container-high" />
+            <div className="h-8 w-20 rounded-full bg-surface-container-high" />
+            <div className="h-8 w-20 rounded-full bg-surface-container-high" />
+          </div>
+        </div>
+
+        {/* Menu item cards skeleton */}
+        <div className="px-margin-mobile mt-6 space-y-6">
+          <div className="h-6 w-32 bg-surface-container-high rounded" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex bg-surface-container-lowest rounded-xl overflow-hidden border border-surface-container-low"
+            >
+              <div className="w-32 h-32 bg-surface-container-high" />
+              <div className="p-4 flex flex-col justify-between grow">
+                <div className="space-y-2">
+                  <div className="h-5 w-3/4 bg-surface-container-high rounded" />
+                  <div className="h-4 w-1/2 bg-surface-container-high rounded" />
                 </div>
+                <div className="h-5 w-24 bg-surface-container-high rounded" />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
