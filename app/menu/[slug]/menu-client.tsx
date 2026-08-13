@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { MenuItem, RestaurantInfo } from "@/types";
 import {
   Check,
@@ -65,7 +65,7 @@ function MenuItemCard({
     >
       {hasImage ? (
         <div className="flex">
-          <div className="w-32 h-32 flex-shrink-0 overflow-hidden">
+          <div className="w-28 flex-shrink-0 self-stretch overflow-hidden">
             <img
               loading="lazy"
               decoding="async"
@@ -182,7 +182,6 @@ export default function MenuClient({
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [search, setSearch] = useState("");
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const grouped = useMemo(() => {
     return (menu || []).reduce<Record<string, MenuItem[]>>((acc, item) => {
@@ -194,6 +193,13 @@ export default function MenuClient({
   }, [menu]);
 
   const categories = Object.keys(grouped || {});
+
+  // "Hamısı" seçildikdə bütün məhsullar kateqoriyasız ardıcıl göstərilir,
+  // konkret kateqoriya seçildikdə yalnız həmin kateqoriyanın kartları süzülür.
+  const isAll = activeCategory === "Hamısı";
+  const displayItems = isAll
+    ? menu || []
+    : grouped?.[activeCategory] || [];
 
   const normalizedSearch = search.trim().toLowerCase();
   const searching = normalizedSearch.length > 0;
@@ -218,47 +224,32 @@ export default function MenuClient({
     }
   }, [selectedItem, isModalOpen]);
 
-  // Scroll-spy: istifadəçi aşağı scroll etdikcə aktiv kateqoriyanı avtomatik highlight et
+  // Desktop (md+) rejimində brauzer window-unun özünün skrol olunmasını söndür —
+  // yalnız iPhone çərçivəsi daxilindəki konteyner skrol olunsun.
   useEffect(() => {
-    if (searching || categories.length === 0) return;
-    const LINE = 170; // sticky toolbar hündürlüyü
-    const update = () => {
-      let current = "";
-      for (const cat of categories) {
-        const el = sectionRefs.current[cat];
-        if (!el) continue;
-        if (el.getBoundingClientRect().top <= LINE) current = cat;
-      }
-      if (!current) current = categories[0];
-      setActiveCategory((prev) => (prev === current ? prev : current));
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    const mq = window.matchMedia("(min-width: 768px)");
+    if (!mq.matches) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      document.body.style.overflow = original;
     };
-  }, [categories, searching]);
+  }, []);
 
   const handleSelectCategory = (cat: string) => {
     if (searching) return;
-    if (cat === "Hamısı") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    const el = sectionRefs.current[cat];
-    if (el) {
-      const y = el.getBoundingClientRect().top + window.scrollY - 165;
-      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-    }
+    setActiveCategory(cat);
   };
 
   return (
     <div
-      className={`min-h-screen bg-background text-on-background font-body-md ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
+      className={`mx-auto max-w-[430px] min-h-screen bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:h-[calc(100dvh-80px)] md:max-w-[390px] md:min-h-0 md:rounded-[48px] md:border-[10px] md:border-slate-800 md:shadow-black/50 md:overflow-hidden md:bg-white md:pb-0 ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
     >
-      <main className="pb-6">
+      {/* Dynamic Island / Notch — yalnız desktop iPhone mockup-da görünür */}
+      <div className="hidden md:block absolute top-2.5 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="w-28 h-5 bg-black rounded-full" />
+      </div>
+      <main className="pb-6 md:h-full md:overflow-y-auto md:bg-white md:pb-32">
         <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
           <img
             alt="Restaurant interior"
@@ -360,42 +351,36 @@ export default function MenuClient({
                 ))}
               </div>
             )
-          ) : Object.keys(grouped || {}).length === 0 ? (
+          ) : displayItems.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-on-surface-variant">
                 Menyu məhsulları yoxdur.
               </p>
             </div>
           ) : (
-            categories.map((category) => (
-              <section
-                key={category}
-                ref={(el) => {
-                  sectionRefs.current[category] = el;
-                }}
-                className="scroll-mt-40"
-              >
-                <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-3">
-                  {category}
+            <div>
+              {!isAll && (
+                <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-4">
+                  {activeCategory}
                 </h2>
-                <div className="space-y-4">
-                  {(grouped?.[category] || []).map((item) => (
-                    <MenuItemCard
-                      key={item._id}
-                      item={item}
-                      systemMode={systemMode}
-                      onSelect={setSelectedItem}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))
+              )}
+              <div className="space-y-4">
+                {displayItems.map((item) => (
+                  <MenuItemCard
+                    key={item._id}
+                    item={item}
+                    systemMode={systemMode}
+                    onSelect={setSelectedItem}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </main>
 
       {systemMode !== "VIEWER_ONLY" && (
-        <div className="fixed bottom-6 left-margin-mobile right-margin-mobile z-40">
+        <div className="fixed bottom-6 left-margin-mobile right-margin-mobile z-40 md:absolute md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-[calc(100%-32px)]">
           <button className="w-full h-16 bg-on-background text-background rounded-2xl flex items-center justify-between px-6 shadow-2xl transition-transform active:scale-95 group">
             <div className="flex items-center gap-3">
               <div className="relative">
