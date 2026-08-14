@@ -1,104 +1,68 @@
-const plans = [
-  {
-    name: "Başlanğıc",
-    price: "29",
-    period: "/ay",
-    description: "Kiçik restoranlar və kafelər üçün",
-    features: ["3 Masa", "100 Menu Məhsulu", "Temiz Analitika", "E-poçt Dəstəyi"],
-    cta: "Pulsuz Başla",
-    href: "https://admin.menovo.rest/register",
-    featured: false,
-  },
-  {
-    name: "Pro",
-    price: "79",
-    period: "/ay",
-    description: "Orta və böyük restoranlar üçün",
-    features: ["10 Masa", "1000 Menu Məhsulu", "Detallı Hesabatlar", "Öncelikli Dəstək", "Brendləşdirmə"],
-    cta: "İndi Başla",
-    href: "https://admin.menovo.rest/register",
-    featured: true,
-  },
-  {
-    name: "Enterprise",
-    price: "199",
-    period: "/ay",
-    description: "Zəncirlər və böyük obyektlər üçün",
-    features: ["Limitsiz Masa", "Limitsiz Məhsul", "API Girişi", "24/7 Dəstək", "Özəl Təlimat"],
-    cta: "Əlaqə Saxla",
-    href: "https://admin.menovo.rest/register",
-    featured: false,
-  },
+import { ArrowRight, BadgeCheck } from "lucide-react";
+import { WHATSAPP_LINK } from "@/utils/site";
+
+const perks = [
+  "Limitsiz kateqoriya və məhsul əlavəsi",
+  "7/24 WhatsApp dəstəyi",
+  "Sürətli bulud (Cloud) hostinq",
+  "Avadanlıq xərci yoxdur",
 ];
 
 export default function Pricing() {
   return (
-    <section id="pricing" className="py-20 sm:py-24 bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Sadə və şəffaf qiymətlər
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Biznesinizin ölçüsünə uyğun plan seçin. Hər zaman dəyişdirmək mümkündür.
-          </p>
+    <section
+      className="py-xl px-gutter max-w-container-max mx-auto flex flex-col items-center"
+      id="qiymat"
+    >
+      <div className="text-center mb-xl">
+        <h2 className="font-headline-lg md:text-display-lg text-on-surface mb-sm">
+          Sadə və Şəffaf Qiymətləndirmə
+        </h2>
+        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+          Gizli xərclər yoxdur. Ehtiyacınız olan hər şey tək paketdə.
+        </p>
+      </div>
+
+      {/* Single Pricing Card */}
+      <div className="w-full max-w-md glass-panel rounded-2xl p-xl relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_30px_rgba(245,158,11,0.1)] border-primary/40 transform hover:-translate-y-2 transition-transform duration-300">
+        {/* Popular Badge */}
+        <div className="absolute top-0 right-0 bg-primary-container text-on-primary-container px-lg py-xs rounded-bl-lg font-label-sm text-label-sm font-bold uppercase tracking-wider shadow-md">
+          Ən Populyar
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 lg:max-w-none lg:grid-cols-3">
-          {plans.map((plan, index) => (
-            <div
-              key={index}
-              className={`relative flex flex-col rounded-2xl p-8 shadow-sm ring-1 ${
-                plan.featured
-                  ? "bg-black text-white ring-black"
-                  : "bg-white text-gray-900 ring-gray-200"
-              }`}
-            >
-              {plan.featured && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center rounded-full bg-white px-4 py-1 text-sm font-semibold text-black">
-                    Ən Populyar
-                  </span>
-                </div>
-              )}
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold">{plan.name}</h3>
-                <p className={`mt-2 text-sm ${plan.featured ? "text-gray-300" : "text-gray-500"}`}>
-                  {plan.description}
-                </p>
-              </div>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{plan.price}₼</span>
-                <span className={`text-sm ${plan.featured ? "text-gray-300" : "text-gray-500"}`}>{plan.period}</span>
-              </div>
-              <ul className="mb-8 space-y-3 flex-1">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <svg
-                      className={`h-5 w-5 flex-shrink-0 ${plan.featured ? "text-white" : "text-black"}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className={`text-sm ${plan.featured ? "text-gray-200" : "text-gray-600"}`}>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={plan.href}
-                className={`inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition-colors ${
-                  plan.featured
-                    ? "bg-white text-black hover:bg-gray-100"
-                    : "bg-black text-white hover:bg-gray-800"
-                }`}
-              >
-                {plan.cta}
-              </a>
-            </div>
-          ))}
+        <div className="flex flex-col gap-sm border-b border-outline-variant/20 pb-lg mb-lg">
+          <h3 className="font-title-md text-title-md text-primary font-bold">
+            Rüblük Paket
+          </h3>
+          <div className="flex items-baseline gap-xs">
+            <span className="font-display-lg text-display-lg text-on-surface font-bold text-gradient">
+              60 AZN
+            </span>
+            <span className="text-on-surface-variant font-body-md">/ 3 ay</span>
+          </div>
+          <span className="bg-surface-container-high text-on-surface-variant text-sm px-sm py-1 rounded-md w-fit mt-1 border border-outline-variant/30">
+            Ayı cəmi 20 AZN-ə düşür
+          </span>
         </div>
+
+        <ul className="flex flex-col gap-md mb-xl">
+          {perks.map((p) => (
+            <li key={p} className="flex items-center gap-sm">
+              <BadgeCheck size={20} className="text-secondary shrink-0 fill-current" />
+              <span className="text-on-surface font-body-md">{p}</span>
+            </li>
+          ))}
+        </ul>
+
+        <a
+          href={WHATSAPP_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full bg-primary-container hover:bg-primary-container/90 text-on-primary-container py-md rounded-lg font-title-md text-title-md font-bold transition-all shadow-[0_4px_15px_rgba(245,158,11,0.4)] flex items-center justify-center gap-xs"
+        >
+          İndi Qoşul
+          <ArrowRight size={20} />
+        </a>
       </div>
     </section>
   );

@@ -1,72 +1,135 @@
-const features = [
+import { BadgeCheck, Check, MessageCircle, QrCode, Sparkles, X } from "lucide-react";
+
+const traditionalCons = [
+  "Mürəkkəb qeydiyyat və kassa inteqrasiyası tələb edir.",
+  "Aylıq yüksək abunəlik haqları və gizli xərclər.",
+  "Menyu yeniləmək üçün kompyuterə və təlimə ehtiyac var.",
+  "Yavaş yüklənən səhifələr müştəriləri yorur.",
+];
+
+const menovoPros = [
+  "Münasib rüblük ödəniş",
+  "WhatsApp-dan mətni yapışdır",
+  "100% Cloud, quraşdırma yoxdur",
+  "İldırım sürəti ilə işləyən interfeys",
+];
+
+const steps = [
   {
-    title: "QR Menu Yaradın",
-    description: "Bir neçə dəqiqə ərzində QR kodlu menyu yaradın və müştəriləriniz dərhal sifariş versin.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-      </svg>
-    ),
+    icon: MessageCircle,
+    title: "1. Mətni Göndərin",
+    description:
+      "Menyunuzu mətn və ya şəkil formasında bizə WhatsApp vasitəsilə göndərin.",
   },
   {
-    title: "Real-Zamanlı Sifarişlər",
-    description: "Sifarişlər anlıq olaraq görünür. Müştəri tərəfindən verilən sifarişləri izləyin və idarə edin.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
+    icon: Sparkles,
+    title: "2. Avtomatik Yaranma",
+    description:
+      "Sistemimiz məlumatları dərhal emal edib, modern menyu yaradır.",
   },
   {
-    title: "Anlaşıqlı Hesabatlar",
-    description: "Satışlar, məhsullar və performans haqqında ətraflı hesabatlar alın.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Responsive Dizayn",
-    description: "Mobil, tablet və masaüstü cihazlarda mükəmməl işləyir. Heç bir proqram yükləməyə ehtiyac yoxdur.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-      </svg>
-    ),
+    icon: QrCode,
+    title: "3. QR Kodunuz Hazırdır",
+    description:
+      "Masalara yerləşdirmək üçün xüsusi QR kodunuzu əldə edin.",
   },
 ];
 
 export default function Features() {
   return (
-    <section id="features" className="py-20 sm:py-24 bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Hər şey bir yerə
+    <>
+      {/* Comparison Section */}
+      <section className="py-xl px-gutter max-w-container-max mx-auto" id="mahsul">
+        <div className="text-center mb-xl">
+          <h2 className="font-display-lg text-headline-lg md:text-display-lg text-on-surface mb-sm">
+            Niyə <span className="text-gradient">Menovo?</span>
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Menovo ilə restoranınızın idarəetməsini sadələşdirin və müştəri təcrübəsini yüksəldin.
+          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+            Köhnə sistemləri unudun. Restoran idarəetməsini sadələşdirmək üçün
+            dizayn edildi.
           </p>
         </div>
 
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="relative flex flex-col rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-black text-white">
-                  {feature.icon}
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
-                <p className="mt-2 text-gray-600">{feature.description}</p>
-              </div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-md md:gap-0 max-w-4xl mx-auto">
+          {/* Bad Side */}
+          <div className="bg-surface-container border border-outline-variant/20 rounded-t-xl md:rounded-l-xl md:rounded-tr-none p-xl flex flex-col gap-lg">
+            <div className="flex items-center gap-sm pb-md border-b border-outline-variant/20">
+              <X size={28} className="text-error" strokeWidth={2} />
+              <h3 className="font-title-md text-title-md text-on-surface/70 font-semibold">
+                Ənənəvi QR Sistemlər
+              </h3>
+            </div>
+            <ul className="flex flex-col gap-md">
+              {traditionalCons.map((c) => (
+                <li key={c} className="flex items-start gap-sm">
+                  <X size={20} className="text-error/80 mt-1 shrink-0" />
+                  <span className="text-on-surface-variant font-body-md">{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Good Side */}
+          <div className="glass-panel border-primary/30 rounded-b-xl md:rounded-r-xl md:rounded-bl-none p-xl flex flex-col gap-lg relative overflow-hidden transform md:scale-105 z-10 shadow-[0_20px_40px_rgba(245,158,11,0.1)]">
+            <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-container/20 rounded-full blur-2xl"></div>
+            <div className="flex items-center gap-sm pb-md border-b border-primary/20">
+              <BadgeCheck size={28} className="text-primary-container fill-current" />
+              <h3 className="font-title-md text-title-md text-primary font-bold">
+                Menovo
+              </h3>
+            </div>
+            <ul className="flex flex-col gap-md relative z-10">
+              {menovoPros.map((p) => (
+                <li key={p} className="flex items-start gap-sm">
+                  <Check size={20} className="text-secondary mt-1 shrink-0 fill-current" />
+                  <span className="text-on-surface font-body-md font-semibold bg-surface/50 px-2 py-0.5 rounded border border-outline-variant/30">
+                    {p}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* How it Works Section */}
+      <section className="py-xl px-gutter max-w-container-max mx-auto" id="xususiyyatlar">
+        <div className="text-center mb-xl">
+          <h2 className="font-headline-lg md:text-display-lg text-on-surface mb-sm">
+            Necə İşləyir?
+          </h2>
+          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+            Cəmi 3 sadə addımla menyunuzu rəqəmsallaşdırın.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-lg relative">
+          {/* Connecting Line (Desktop) */}
+          <div className="hidden md:block absolute top-[40px] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-transparent via-outline-variant to-transparent z-0"></div>
+
+          {steps.map((step) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.title}
+                className="flex flex-col items-center text-center gap-md z-10 group"
+              >
+                <div className="w-20 h-20 rounded-full glass-panel flex items-center justify-center text-primary-container shadow-[0_0_30px_rgba(245,158,11,0.15)] group-hover:scale-110 transition-transform duration-300">
+                  <Icon size={36} />
+                </div>
+                <div>
+                  <h3 className="font-title-md text-title-md text-on-surface mb-xs">
+                    {step.title}
+                  </h3>
+                  <p className="font-body-md text-body-md text-on-surface-variant">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </>
   );
 }

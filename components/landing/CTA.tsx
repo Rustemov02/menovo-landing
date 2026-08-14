@@ -1,30 +1,21 @@
+import { MessageCircle } from "lucide-react";
+import { WHATSAPP_LINK } from "@/utils/site";
+
 export default function CTA() {
   return (
-    <section className="py-20 sm:py-24 bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Hazırsınız?
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            İlk 14 gün pulsuz sına. Kart məlumatı tələb olunmur.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="https://admin.menovo.rest/register"
-              className="inline-flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-gray-800 transition-colors"
-            >
-              Pulsuz Başla
-            </a>
-            <a
-              href="https://admin.menovo.rest/login"
-              className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-8 py-3.5 text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
-            >
-              Daxil ol
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div className="flex flex-col items-center text-center gap-md mb-xl">
+      <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">
+        Restoranınızı bu gün rəqəmsallaşdırın.
+      </h2>
+      <a
+        href={WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-[#10B981] hover:bg-[#059669] text-white px-xl py-lg rounded-xl font-title-md text-title-md font-bold transition-all flex items-center justify-center gap-sm shadow-[0_10px_30px_rgba(16,185,129,0.2)] hover:-translate-y-1 mt-sm"
+      >
+        <MessageCircle size={24} className="fill-current" />
+        WhatsApp-da Bizə Yazın
+      </a>
+    </div>
   );
 }

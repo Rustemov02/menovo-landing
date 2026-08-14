@@ -1,104 +1,88 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
+import { DEMO_ROUTE, LOGO_URL } from "@/utils/site";
+
+const navLinks = [
+  { href: "#mahsul", label: "Məhsul" },
+  { href: "#xususiyyatlar", label: "Xüsusiyyətlər" },
+  { href: "#qiymat", label: "Qiymətləndirmə" },
+  { href: "#faq", label: "FAQ" },
+];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center">
-            <a href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-black flex items-center justify-center">
-                <span className="text-white font-bold text-lg">M</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">Menovo</span>
-            </a>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-gray-700 hover:text-black transition-colors">
-              Xüsusiyyətlər
-            </a>
-            <a href="#pricing" className="text-sm font-medium text-gray-700 hover:text-black transition-colors">
-              Qiymətlər
-            </a>
-          </nav>
-
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
-            <a
-              href="https://admin.menovo.rest/login"
-              className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
-            >
-              Daxil ol
-            </a>
-            <a
-              href="https://admin.menovo.rest/register"
-              className="inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
-            >
-              Qeydiyyat
-            </a>
-          </div>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? (
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+    <nav className="fixed top-0 w-full z-50 border-b border-outline-variant/10 bg-surface/80 backdrop-blur-md shadow-md">
+      <div className="flex justify-between items-center h-20 px-gutter max-w-container-max mx-auto">
+        {/* Logo */}
+        <div className="flex items-center gap-sm">
+          <img
+            alt="Menovo Logo"
+            className="w-10 h-10 object-contain rounded-md bg-surface-container-low p-1 border border-outline-variant/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+            src={LOGO_URL}
+          />
+          <span className="hidden md:block font-headline-lg text-headline-lg font-bold text-primary">
+            Menovo
+          </span>
         </div>
 
-        {/* Mobile Navigation */}
-        {mobileOpen && (
-          <div className="md:hidden py-4 space-y-3 border-t border-gray-200">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex gap-lg items-center">
+          {navLinks.map((l) => (
             <a
-              href="#features"
-              className="block text-sm font-medium text-gray-700 hover:text-black"
-              onClick={() => setMobileOpen(false)}
+              key={l.href}
+              href={l.href}
+              className="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md"
             >
-              Xüsusiyyətlər
+              {l.label}
             </a>
-            <a
-              href="#pricing"
-              className="block text-sm font-medium text-gray-700 hover:text-black"
-              onClick={() => setMobileOpen(false)}
-            >
-              Qiymətlər
-            </a>
-            <div className="flex flex-col gap-3 pt-3 border-t border-gray-200">
-              <a
-                href="https://admin.menovo.rest/login"
-                className="text-center text-sm font-medium text-gray-700 hover:text-black"
-                onClick={() => setMobileOpen(false)}
-              >
-                Daxil ol
-              </a>
-              <a
-                href="https://admin.menovo.rest/register"
-                className="inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
-                onClick={() => setMobileOpen(false)}
-              >
-                Qeydiyyat
-              </a>
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
+
+        {/* Desktop CTA + mobile toggle */}
+        <div className="flex items-center gap-sm">
+          <Link
+            href={DEMO_ROUTE}
+            className="hidden md:inline-flex bg-transparent border-[1.5px] border-outline-variant text-inverse-surface hover:border-primary hover:text-primary px-lg py-sm rounded-lg font-title-md text-title-md transition-all duration-300 ease-in-out shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_20px_rgba(245,158,11,0.2)]"
+          >
+            Canlı Demoya Bax
+          </Link>
+          <button
+            onClick={() => setMobileOpen((o) => !o)}
+            className="md:hidden inline-flex items-center justify-center p-2 text-on-surface-variant hover:text-primary transition-colors"
+            aria-label="Menyunu aç/bağla"
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
-    </header>
+
+      {/* Mobile Navigation */}
+      {mobileOpen && (
+        <div className="md:hidden bg-surface/95 backdrop-blur-md border-t border-outline-variant/10 px-gutter py-4 flex flex-col gap-3">
+          {navLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={() => setMobileOpen(false)}
+              className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors"
+            >
+              {l.label}
+            </a>
+          ))}
+          <Link
+            href={DEMO_ROUTE}
+            onClick={() => setMobileOpen(false)}
+            className="mt-2 text-center bg-transparent border-[1.5px] border-outline-variant text-inverse-surface hover:border-primary hover:text-primary px-lg py-sm rounded-lg font-title-md text-title-md transition-all duration-300 ease-in-out"
+          >
+            Canlı Demoya Bax
+          </Link>
+        </div>
+      )}
+    </nav>
   );
 }
