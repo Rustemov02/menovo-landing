@@ -284,12 +284,12 @@ export default function MenuClient({
 
   return (
     <div
-      className={`mx-auto w-full min-h-screen bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:w-97.5 md:h-200 md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
+      className={`mx-auto w-full min-h-0 bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:w-97.5 md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
     >
 
       {/* iPhone daxili viewport — bütün məzmun və modallar bu çərçivənin içində qalır */}
-      <div className="relative w-full h-full bg-background md:overflow-hidden md:rounded-[38px]">
-        <main className="pb-6 md:h-full md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32">
+      <div className="relative w-full min-h-0 bg-background md:overflow-hidden md:rounded-[38px]">
+        <main className="pb-6 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32">
         <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
           <img
             alt="Restaurant interior"
@@ -398,11 +398,11 @@ export default function MenuClient({
           onSelect={handleSelectCategory}
         />
 
-        <div className="px-margin-mobile mt-6 space-y-8">
+        <div className="px-margin-mobile mt-6 flex flex-col justify-start gap-4">
           {searching ? (
             searchResults.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-xl text-on-surface-variant">
+              <div className="flex items-center justify-center min-h-[200px] px-4">
+                <p className="text-center text-body-md text-on-surface-variant">
                   Axtarış üzrə heç bir nəticə tapılmadı.
                 </p>
               </div>
@@ -419,9 +419,9 @@ export default function MenuClient({
               </div>
             )
           ) : displayItems.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-xl text-on-surface-variant">
-                Menyu məhsulları yoxdur.
+            <div className="flex items-center justify-center min-h-[200px] px-4">
+              <p className="text-center text-body-md text-on-surface-variant">
+                Bu kateqoriyada məhsul tapılmadı
               </p>
             </div>
           ) : (
