@@ -6,7 +6,7 @@
  */
 
 // Beynəlxalq formatda, "+" və boşluqlar OLMADAN (məs. 994501234567)
-export const WHATSAPP_NUMBER = "994000000000";
+export const WHATSAPP_NUMBER = "994557783324";
 export const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
 
 // "Canlı Demoya Bax" düymələrinin bağlandığı Client View (QR Menyu Demo) marşrutu

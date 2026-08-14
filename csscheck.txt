@@ -1,2 +1,0 @@
-DISPLAY>>y:Inter,sans-serif}.text-display-lg{font-size:48px;line-height:var(--tw-leading,56px);letter-spacing:var(--tw-tracking,-.02em);font-weight:var(--tw-font-weight,700)}.text-title-md{font-size:20px;line-
-VAR>>ertiary-fixed-variant:#3a485c;--text-display-lg:48px;--text-display-lg--line-height:56px;--text-display-lg--letter-spacing:-.02em;--text-dis

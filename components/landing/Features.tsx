@@ -1,4 +1,11 @@
-import { BadgeCheck, Check, MessageCircle, QrCode, Sparkles, X } from "lucide-react";
+import {
+  BadgeCheck,
+  Check,
+  MessageCircle,
+  QrCode,
+  Sparkles,
+  X,
+} from "lucide-react";
 
 const traditionalCons = [
   "Mürəkkəb qeydiyyat və kassa inteqrasiyası tələb edir.",
@@ -9,7 +16,7 @@ const traditionalCons = [
 
 const menovoPros = [
   "Münasib rüblük ödəniş",
-  "WhatsApp-dan mətni yapışdır",
+  "Hazır mətni kopyalayıb yapışdırın",
   "100% Cloud, quraşdırma yoxdur",
   "İldırım sürəti ilə işləyən interfeys",
 ];
@@ -17,21 +24,21 @@ const menovoPros = [
 const steps = [
   {
     icon: MessageCircle,
-    title: "1. Mətni Göndərin",
+    title: "1. Məhsulları daxil edin",
     description:
-      "Menyunuzu mətn və ya şəkil formasında bizə WhatsApp vasitəsilə göndərin.",
+      "Menyu siyahınızı kütləvi mətn şəklində yapışdırın və ya tək-tək rahatlıqla əlavə edin.",
   },
   {
     icon: Sparkles,
-    title: "2. Avtomatik Yaranma",
+    title: "2. Anında Yaranma",
     description:
-      "Sistemimiz məlumatları dərhal emal edib, modern menyu yaradır.",
+      "Sistem məlumatları dərhal emal edir və modern rəqəmsal menyunuz saniyələr ərzində hazır olur.",
   },
   {
     icon: QrCode,
     title: "3. QR Kodunuz Hazırdır",
     description:
-      "Masalara yerləşdirmək üçün xüsusi QR kodunuzu əldə edin.",
+      "Məkanınıza və masalara yerləşdirmək üçün özəl QR kodunuzu yükləyin və istifadəyə başlayın.",
   },
 ];
 
@@ -39,14 +46,17 @@ export default function Features() {
   return (
     <>
       {/* Comparison Section */}
-      <section className="py-xl px-gutter max-w-container-max mx-auto" id="mahsul">
+      <section
+        className="py-xl px-gutter max-w-container-max mx-auto"
+        id="mahsul"
+      >
         <div className="text-center mb-xl">
           <h2 className="font-display-lg text-headline-lg md:text-display-lg text-on-surface mb-sm">
             Niyə <span className="text-gradient">Menovo?</span>
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-            Köhnə sistemləri unudun. Restoran idarəetməsini sadələşdirmək üçün
-            dizayn edildi.
+            Köhnə sistemləri unudun. Menyunu idarə etməyi maksimum sadələşdirmək
+            üçün dizayn edildi.
           </p>
         </div>
 
@@ -63,7 +73,9 @@ export default function Features() {
               {traditionalCons.map((c) => (
                 <li key={c} className="flex items-start gap-sm">
                   <X size={20} className="text-error/80 mt-1 shrink-0" />
-                  <span className="text-on-surface-variant font-body-md">{c}</span>
+                  <span className="text-on-surface-variant font-body-md">
+                    {c}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -73,7 +85,10 @@ export default function Features() {
           <div className="glass-panel border-primary/30 rounded-b-xl md:rounded-r-xl md:rounded-bl-none p-xl flex flex-col gap-lg relative overflow-hidden transform md:scale-105 z-10 shadow-[0_20px_40px_rgba(245,158,11,0.1)]">
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-container/20 rounded-full blur-2xl"></div>
             <div className="flex items-center gap-sm pb-md border-b border-primary/20">
-              <BadgeCheck size={28} className="text-primary-container fill-current" />
+              <BadgeCheck
+                size={28}
+                className="text-primary-container fill-current"
+              />
               <h3 className="font-title-md text-title-md text-primary font-bold">
                 Menovo
               </h3>
@@ -81,7 +96,10 @@ export default function Features() {
             <ul className="flex flex-col gap-md relative z-10">
               {menovoPros.map((p) => (
                 <li key={p} className="flex items-start gap-sm">
-                  <Check size={20} className="text-secondary mt-1 shrink-0 fill-current" />
+                  <Check
+                    size={20}
+                    className="text-secondary mt-1 shrink-0 fill-current"
+                  />
                   <span className="text-on-surface font-body-md font-semibold bg-surface/50 px-2 py-0.5 rounded border border-outline-variant/30">
                     {p}
                   </span>
@@ -93,7 +111,10 @@ export default function Features() {
       </section>
 
       {/* How it Works Section */}
-      <section className="py-xl px-gutter max-w-container-max mx-auto" id="xususiyyatlar">
+      <section
+        className="py-xl px-gutter max-w-container-max mx-auto"
+        id="xususiyyatlar"
+      >
         <div className="text-center mb-xl">
           <h2 className="font-headline-lg md:text-display-lg text-on-surface mb-sm">
             Necə İşləyir?

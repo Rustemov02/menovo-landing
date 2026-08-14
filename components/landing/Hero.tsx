@@ -25,12 +25,13 @@ export default function Hero() {
           </div>
 
           <h1 className="font-display-lg text-display-lg text-on-surface leading-tight text-gradient drop-shadow-[0_2px_10px_rgba(245,158,11,0.2)]">
-            Restoranınız üçün ən sürətli və sadə rəqəmsal QR menyu
+            Məkanınız üçün ən sürətli və sadə rəqəmsal QR menyu
           </h1>
 
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-[90%] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-            Mürəkkəb kassa proqramlarına və aylıq yüksək abunəliklərə son. Menyunuzu
-            WhatsApp-dan mətni göndərərək 5 dəqiqəyə işə salın.
+            Mürəkkəb kassa proqramlarına və aylıq yüksək abunəliklərə son.
+            Menyunuzu dərhal yaradın, istədiyiniz vaxt anında yeniləyin və
+            dərhal istifadəyə verin.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-md mt-sm">
@@ -90,10 +91,13 @@ export default function Hero() {
                     <span className="bg-primary/15 text-primary text-[10px] px-2 py-1 rounded-sm uppercase tracking-wide font-bold">
                       Steakhouse
                     </span>
-                    <span className="flex items-center text-[12px] text-on-surface-variant">
-                      <Star size={14} className="text-primary-container mr-1 fill-current" />
+                    {/* <span className="flex items-center text-[12px] text-on-surface-variant">
+                      <Star
+                        size={14}
+                        className="text-primary-container mr-1 fill-current"
+                      />
                       4.9
-                    </span>
+                    </span> */}
                   </div>
                 </div>
 
@@ -116,7 +120,9 @@ export default function Hero() {
                     <div className="w-20 h-20 rounded-md bg-surface-container-high shrink-0 overflow-hidden relative">
                       <div
                         className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url('${dishImages.ribeye}')` }}
+                        style={{
+                          backgroundImage: `url('${dishImages.ribeye}')`,
+                        }}
                       ></div>
                     </div>
                     <div className="flex flex-col justify-between w-full">
@@ -145,7 +151,9 @@ export default function Hero() {
                     <div className="w-20 h-20 rounded-md bg-surface-container-high shrink-0 overflow-hidden relative">
                       <div
                         className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url('${dishImages.sezar}')` }}
+                        style={{
+                          backgroundImage: `url('${dishImages.sezar}')`,
+                        }}
                       ></div>
                     </div>
                     <div className="flex flex-col justify-between w-full">
@@ -178,4 +186,3 @@ export default function Hero() {
     </main>
   );
 }
-

@@ -2,7 +2,9 @@ import { ArrowRight, BadgeCheck } from "lucide-react";
 import { WHATSAPP_LINK } from "@/utils/site";
 
 const perks = [
-  "Limitsiz kateqoriya və məhsul əlavəsi",
+  "Limitsiz kateqoriya və məhsul əlavəsi (heç bir limit yoxdur)",
+  "Saniyələr ərzində anında yeniləmə",
+  "Özəl QR kodun avtomak yaradılması",
   "7/24 WhatsApp dəstəyi",
   "Sürətli bulud (Cloud) hostinq",
   "Avadanlıq xərci yoxdur",
@@ -24,26 +26,26 @@ export default function Pricing() {
       </div>
 
       {/* Single Pricing Card */}
-      <div className="w-full max-w-md glass-panel rounded-2xl p-xl relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_30px_rgba(245,158,11,0.1)] border-primary/40 transform hover:-translate-y-2 transition-transform duration-300">
+      <div className="w-full glass-panel rounded-2xl p-xl relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6),0_0_30px_rgba(245,158,11,0.1)] border-primary/40 transform hover:-translate-y-2 transition-transform duration-300">
         {/* Popular Badge */}
-        <div className="absolute top-0 right-0 bg-primary-container text-on-primary-container px-lg py-xs rounded-bl-lg font-label-sm text-label-sm font-bold uppercase tracking-wider shadow-md">
+        {/* <div className="absolute top-0 right-0 bg-primary-container text-on-primary-container px-lg py-xs rounded-bl-lg font-label-sm text-label-sm font-bold uppercase tracking-wider shadow-md">
           Ən Populyar
-        </div>
+        </div> */}
 
         <div className="flex flex-col gap-sm border-b border-outline-variant/20 pb-lg mb-lg">
           <h3 className="font-title-md text-title-md text-primary font-bold">
-            Rüblük Paket
+            Aylıq Paket
           </h3>
           <div className="flex items-baseline gap-xs">
             <span className="font-display-lg text-display-lg text-on-surface font-bold text-gradient">
-              60 AZN
+              25 AZN
             </span>
-            <span className="text-on-surface-variant font-body-md">/ 3 ay</span>
+            <span className="text-on-surface-variant font-body-md">/ ay</span>
           </div>
-          <span className="bg-surface-container-high text-on-surface-variant text-sm px-sm py-1 rounded-md w-fit mt-1 border border-outline-variant/30">
+          {/* <span className="bg-surface-container-high text-on-surface-variant text-sm px-sm py-1 rounded-md w-fit mt-1 border border-outline-variant/30">
             Ayı cəmi 20 AZN-ə düşür
-          </span>
-        </div>
+          </span> */}
+        </div> 
 
         <ul className="flex flex-col gap-md mb-xl">
           {perks.map((p) => (
@@ -64,6 +66,8 @@ export default function Pricing() {
           <ArrowRight size={20} />
         </a>
       </div>
+
+      
     </section>
   );
 }

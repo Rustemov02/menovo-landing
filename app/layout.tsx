@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Menovo - Restoranlar Üçün QR Menu Sistemi",
-  description: "Menovo ilə restoranlar üçün sürətli və asan QR menu, sifariş idarəetmə və analitika sistemindən istifadə edin.",
+  title: "Menovo - Məkanınız üçün ən sürətli və sadə rəqəmsal QR menyu",
+  description:
+    "Mürəkkəb kassa proqramlarına son. Menyunuzu dərhal yaradın, istədiyiniz vaxt anında yeniləyin və dərhal istifadəyə verin — münasib rüblük ödənişlə.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

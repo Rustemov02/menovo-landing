@@ -124,7 +124,7 @@ function CategoryTabs({
             className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
           />
           <input
-            type="search"
+            type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Məhsul və ya təsvir üzrə axtar..."
@@ -247,8 +247,8 @@ export default function MenuClient({
     >
 
       {/* iPhone daxili viewport — bütün məzmun və modallar bu çərçivənin içində qalır */}
-      <div className="relative w-full h-full bg-[#FAFAFA] md:overflow-hidden md:rounded-[38px]">
-        <main className="pb-6 md:h-full md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-[#FAFAFA] md:pb-32">
+      <div className="relative w-full h-full bg-background md:overflow-hidden md:rounded-[38px]">
+        <main className="pb-6 md:h-full md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32">
         <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
           <img
             alt="Restaurant interior"
@@ -288,9 +288,9 @@ export default function MenuClient({
                   <span className="w-2 h-2 rounded-full bg-green-500"></span>{" "}
                   Açıqdır
                 </span>
-                <span className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
+                {/* <span className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
                   <span className="text-yellow-400">⭐</span> 4.9
-                </span>
+                </span> */}
               </div>
             </div>
           </div>

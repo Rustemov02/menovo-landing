@@ -5,7 +5,7 @@ export default function Loading() {
       <div className="hidden md:block absolute top-[10px] left-1/2 -translate-x-1/2 z-50 w-24 h-4 bg-slate-900 rounded-full mx-auto pointer-events-none" />
 
       {/* iPhone daxili viewport */}
-      <div className="relative w-full h-full bg-[#FAFAFA] md:overflow-hidden md:rounded-[38px]">
+      <div className="relative w-full h-full bg-background md:overflow-hidden md:rounded-[38px]">
         <div className="animate-pulse">
           {/* Cover skeleton */}
           <div className="relative w-full h-64 bg-surface-container-high overflow-hidden">
