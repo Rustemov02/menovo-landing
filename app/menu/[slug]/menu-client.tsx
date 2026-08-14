@@ -13,6 +13,43 @@ import {
   X,
 } from "lucide-react";
 
+/**
+ * İş saatları (~ "09:00-22:00", "09:00 – 22:00", "09:00–14:00, 17:00-23:00") mətnini
+ * hazırkı vaxtla müqayisə edərək restoranın açıq olub-olmadığını hesablayır.
+ *
+ * - `workingHours` yoxdursa və ya heç bir vaxt diapazonu parse oluna bilmirsə `null`
+ *   qaytarır (nəticədə "Açıqdır/Bağlıdır" badge-i göstərilmir).
+ * - Hazırda açıqdırsa `true`, bağlıdırsa `false` qaytarır.
+ */
+function isRestaurantOpen(
+  workingHours: string | undefined,
+  now: Date = new Date(),
+): boolean | null {
+  if (!workingHours || !workingHours.trim()) return null;
+
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  // "09:00-22:00", "09:00 – 22:00", "09:00–22:00" formalarını dəstəkləyir.
+  // Eyni gündə çoxsaylı diapazon (nahar + axşam növbəsi) üçün hamısı yoxlanılır.
+  const rangeRegex = /(\d{1,2}):(\d{2})\s*[-–—~]\s*(\d{1,2}):(\d{2})/g;
+  let match: RegExpExecArray | null;
+  let found = false;
+
+  while ((match = rangeRegex.exec(workingHours)) !== null) {
+    found = true;
+    const open = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+    const close = parseInt(match[3], 10) * 60 + parseInt(match[4], 10);
+
+    if (close < open) {
+      // Gecə yarısını keçən növbə (məs. 22:00-06:00)
+      if (nowMinutes >= open || nowMinutes < close) return true;
+    } else if (nowMinutes >= open && nowMinutes < close) {
+      return true;
+    }
+  }
+
+  return found ? false : null;
+}
+
 function AddButton() {
   const [clicked, setClicked] = useState(false);
 
@@ -65,7 +102,7 @@ function MenuItemCard({
     >
       {hasImage ? (
         <div className="flex">
-          <div className="w-28 flex-shrink-0 self-stretch overflow-hidden">
+          <div className="w-28 shrink-0 self-stretch overflow-hidden">
             <img
               loading="lazy"
               decoding="async"
@@ -74,7 +111,7 @@ function MenuItemCard({
               src={item.image}
             />
           </div>
-          <div className="p-4 flex flex-col justify-between flex-grow min-w-0">
+          <div className="p-4 flex flex-col justify-between grow min-w-0">
             <div>{content}</div>
             <div className="flex justify-between items-center mt-2">
               <span className="font-bold text-primary font-body-lg text-body-lg">
@@ -183,6 +220,10 @@ export default function MenuClient({
   const [search, setSearch] = useState("");
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
 
+  // İş saatları varsa hazırkı vaxtla müqayisə edilib açıq/bağlı statusu hesablanır;
+  // saat datası yoxdursa bu, `null` olur və badge ümumiyyətlə göstərilmir.
+  const openStatus = isRestaurantOpen(restaurant.workingHours);
+
   const grouped = useMemo(() => {
     return (menu || []).reduce<Record<string, MenuItem[]>>((acc, item) => {
       const category = item.category || "Digər";
@@ -243,7 +284,7 @@ export default function MenuClient({
 
   return (
     <div
-      className={`mx-auto w-full min-h-screen bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:w-[390px] md:h-[800px] md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
+      className={`mx-auto w-full min-h-screen bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:w-97.5 md:h-200 md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
     >
 
       {/* iPhone daxili viewport — bütün məzmun və modallar bu çərçivənin içində qalır */}
@@ -259,7 +300,7 @@ export default function MenuClient({
               "https://lh3.googleusercontent.com/aida-public/AB6AXuAC7pGIwOZtAlasOgXdYnlJQVoDgc512RGr-NUR13Q5kHpZK1iSqedEIVyHGLyE8UWiXIYzDJkdAhgxcBApyrTZpVs0Mxbggn-Cg4c0ixJ9_q1G-ga7OucWlGh76lHhkoerpIxtAtxz2CtZPc-hWgFeYO8swX5w0F4x32XJIWW7l5p97GB_YXaknwxevaRSFaGWBKIpA77fKQtZtLk1Qy5VbExTCVgPPoUw8DNV8QCCRPHMxMK6VtEc"
             }
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute top-4 w-full px-4 flex justify-between items-center z-10">
             {systemMode !== "VIEWER_ONLY" && (
               <button className="p-2 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-colors duration-200">
@@ -284,10 +325,24 @@ export default function MenuClient({
                 {restaurant.name}
               </h1>
               <div className="flex items-center gap-3 mt-1 font-label-sm">
-                <span className="flex items-center gap-1 bg-green-500/20 text-green-300 px-2 py-1 rounded-md backdrop-blur-sm">
-                  <span className="w-2 h-2 rounded-full bg-green-500"></span>{" "}
-                  Açıqdır
-                </span>
+                {/* Yalnız iş saatı datası olduqda göstərilir və hazırkı vaxta görə
+                    dinamik olaraq "Açıqdır" (yaşıl) / "Bağlıdır" (qırmızı) olur. */}
+                {openStatus !== null && (
+                  <span
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md backdrop-blur-sm ${
+                      openStatus
+                        ? "bg-green-500/20 text-green-300"
+                        : "bg-red-500/20 text-red-300"
+                    }`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        openStatus ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    ></span>{" "}
+                    {openStatus ? "Açıqdır" : "Bağlıdır"}
+                  </span>
+                )}
                 {/* <span className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-md backdrop-blur-sm">
                   <span className="text-yellow-400">⭐</span> 4.9
                 </span> */}
@@ -305,9 +360,19 @@ export default function MenuClient({
               <span>ℹ️</span> Haqqında
             </button>
             {restaurant.address && (
-              <button className="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all duration-200 flex items-center gap-2">
-                <span>📍</span> Ünvan
-              </button>
+              <a
+                href={
+                  restaurant.googleMapsUrl ||
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    restaurant.address,
+                  )}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all duration-200 flex items-center gap-2"
+              >
+                <span>📍</span> {restaurant.address}
+              </a>
             )}
             {restaurant.workingHours && (
               <button className="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all duration-200 flex items-center gap-2">
@@ -315,9 +380,12 @@ export default function MenuClient({
               </button>
             )}
             {restaurant.phone && (
-              <button className="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all duration-200 flex items-center gap-2">
-                <span>📞</span> Əlaqə
-              </button>
+              <a
+                href={`tel:${restaurant.phone.replace(/[^\d+]/g, "")}`}
+                className="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all duration-200 flex items-center gap-2"
+              >
+                <span>📞</span> {restaurant.phone}
+              </a>
             )}
           </div>
         </div>
@@ -407,12 +475,12 @@ export default function MenuClient({
 
       {/* Item Detail Modal — iPhone çərçivəsinin içində (absolute) aşağıdan yuxarıya açılır */}
       {selectedItem && (
-        <div className="absolute inset-0 z-[70] flex items-end justify-center">
+        <div className="absolute inset-0 z-70 flex items-end justify-center">
           <div
             className="absolute inset-0 bg-black/60 transition-opacity"
             onClick={() => setSelectedItem(null)}
           />
-          <div className="relative z-10 w-full bg-surface rounded-t-[32px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-slideUp">
+          <div className="relative z-10 w-full bg-surface rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-slideUp">
             <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-headline-md text-headline-md text-on-surface">
@@ -469,18 +537,16 @@ export default function MenuClient({
         </div>
       )}
 
-      {/* Restaurant Info Modal */}
-      <div
-        className={`absolute inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${
-          isModalOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setIsModalOpen(false)}
-      />
-      <div
-        className={`absolute bottom-0 left-0 right-0 z-[70] bg-surface rounded-t-[32px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transform transition-transform duration-300 ease-out mx-auto ${
-          isModalOpen ? "translate-y-0" : "translate-y-full"
-        }`}
-      >
+      {/* Restaurant Info Modal — yalnız isModalOpen === true olduqda render olunur.
+          Beləliklə modal state false ikən tamamilə DOM-dan silinir və heç bir CSS
+          media-query / avtomatik açılma ssenarisində görünə bilməz. */}
+      {isModalOpen && (
+        <>
+          <div
+            className="absolute inset-0 bg-black/50 z-60"
+            onClick={() => setIsModalOpen(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 z-70 bg-surface rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] mx-auto">
         <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-headline-md text-headline-md text-on-surface">
@@ -597,6 +663,8 @@ export default function MenuClient({
           </div>
         </div>
       </div>
+        </>
+      )}
       </div>
     </div>
   );
