@@ -61,7 +61,7 @@ function MenuItemCard({
   return (
     <div
       onClick={() => onSelect(item)}
-      className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container-low transition-transform active:scale-[0.98] cursor-pointer"
+      className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-100 transition-transform active:scale-[0.98] cursor-pointer"
     >
       {hasImage ? (
         <div className="flex">
@@ -69,7 +69,7 @@ function MenuItemCard({
             <img
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-l-2xl"
               alt={item.name}
               src={item.image}
             />
@@ -154,7 +154,7 @@ function CategoryTabs({
                   window.navigator.vibrate(10);
                 }
               }}
-              className={`whitespace-nowrap px-6 py-2 rounded-full font-label-sm text-label-sm transition-all duration-200 ${
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                 activeCategory === category
                   ? "active-category"
                   : "bg-surface-container-high text-on-surface-variant hover:bg-surface-variant"
@@ -243,13 +243,12 @@ export default function MenuClient({
 
   return (
     <div
-      className={`mx-auto max-w-[430px] min-h-screen bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:h-[calc(100dvh-80px)] md:max-w-[390px] md:min-h-0 md:rounded-[48px] md:border-[10px] md:border-slate-800 md:shadow-black/50 md:overflow-hidden md:bg-white md:pb-0 ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
+      className={`mx-auto w-full min-h-screen bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:w-[390px] md:h-[800px] md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
     >
-      {/* Dynamic Island / Notch — yalnız desktop iPhone mockup-da görünür */}
-      <div className="hidden md:block absolute top-2.5 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div className="w-28 h-5 bg-black rounded-full" />
-      </div>
-      <main className="pb-6 md:h-full md:overflow-y-auto md:bg-white md:pb-32">
+
+      {/* iPhone daxili viewport — bütün məzmun və modallar bu çərçivənin içində qalır */}
+      <div className="relative w-full h-full bg-[#FAFAFA] md:overflow-hidden md:rounded-[38px]">
+        <main className="pb-6 md:h-full md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-[#FAFAFA] md:pb-32">
         <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
           <img
             alt="Restaurant interior"
@@ -406,14 +405,14 @@ export default function MenuClient({
         </div>
       )}
 
-      {/* Item Detail Modal */}
+      {/* Item Detail Modal — iPhone çərçivəsinin içində (absolute) aşağıdan yuxarıya açılır */}
       {selectedItem && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center">
+        <div className="absolute inset-0 z-[70] flex items-end justify-center">
           <div
-            className="fixed inset-0 bg-black/60 transition-opacity"
+            className="absolute inset-0 bg-black/60 transition-opacity"
             onClick={() => setSelectedItem(null)}
           />
-          <div className="relative z-10 w-full bg-surface rounded-t-[32px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="relative z-10 w-full bg-surface rounded-t-[32px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-slideUp">
             <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-headline-md text-headline-md text-on-surface">
@@ -472,13 +471,13 @@ export default function MenuClient({
 
       {/* Restaurant Info Modal */}
       <div
-        className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${
           isModalOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsModalOpen(false)}
       />
       <div
-        className={`fixed bottom-0 left-0 right-0 z-[70] bg-surface rounded-t-[32px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transform transition-transform duration-300 ease-out mx-auto ${
+        className={`absolute bottom-0 left-0 right-0 z-[70] bg-surface rounded-t-[32px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transform transition-transform duration-300 ease-out mx-auto ${
           isModalOpen ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -597,6 +596,7 @@ export default function MenuClient({
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
