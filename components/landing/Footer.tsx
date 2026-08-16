@@ -17,10 +17,11 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-md pt-lg border-t border-outline-variant/10">
           <div className="flex items-center gap-sm">
             <Image
-              src="/icon.png"
+              src="/icon.webp"
               alt="Menovo Logo Small"
+              quality={75}
               width={40}
-              height={40}
+              height={40} 
               className="object-contain rounded bg-surface-container-low p-1 border border-outline-variant/20"
             />
             <span className="font-body-md text-on-surface-variant">

@@ -24,6 +24,7 @@ export default function MenuMockup() {
         <Image
           src="/screen.webp"
           alt="Meydan Bistro QR menyu ekran görüntüsü"
+          quality={75}
           fill
           priority
           sizes="400px"

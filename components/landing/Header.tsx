@@ -22,8 +22,9 @@ export default function Header() {
         {/* Logo */}
         <div className="flex items-center gap-sm">
           <Image
-            src="/icon.png"
+            src="/icon.webp"
             alt="Menovo Logo"
+            quality={75}
             width={40}
             height={40}
             className="object-contain rounded-md"
