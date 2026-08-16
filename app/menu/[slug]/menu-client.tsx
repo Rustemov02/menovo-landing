@@ -295,9 +295,9 @@ export default function MenuClient({
       }
     >
       {/* iPhone Dynamic Island — yalnız desktop iPhone mockup-da görünür */}
-      {!embedded && (
+      {/* {!embedded && (
         <div className="hidden md:block absolute top-2.5 left-1/2 -translate-x-1/2 z-50 w-24 h-4 bg-slate-900 rounded-full mx-auto pointer-events-none" />
-      )}
+      )} */}
 
       {/* iPhone daxili viewport — bütün məzmun və modallar bu çərçivənin içində qalır */}
       <div
@@ -314,7 +314,7 @@ export default function MenuClient({
               : "flex-1 min-h-0 pb-6 flex flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32"
           }
         >
-        <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
+        <header className="relative w-full h-64 bg-surface-container-high">
           <img
             alt="Restaurant interior"
             className="w-full h-full object-cover"
