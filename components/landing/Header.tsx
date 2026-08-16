@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { DEMO_ROUTE, LOGO_URL } from "@/utils/site";
+import { DEMO_ROUTE } from "@/utils/site";
+import Image from "next/image";
 
 const navLinks = [
   { href: "#mahsul", label: "Məhsul" },
@@ -20,10 +21,13 @@ export default function Header() {
       <div className="flex justify-between items-center h-20 px-gutter max-w-container-max mx-auto">
         {/* Logo */}
         <div className="flex items-center gap-sm">
-          <img
+          <Image
+            src="/icon.png"
             alt="Menovo Logo"
-            className="w-10 h-10 object-contain rounded-md bg-surface-container-low p-1 border border-outline-variant/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
-            src={LOGO_URL}
+            width={40}
+            height={40}
+            className="object-contain rounded-md"
+            // className="w-10 h-10 object-contain rounded-md bg-surface-container-low p-1 border border-outline-variant/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
           />
           <span className="hidden md:block font-headline-lg text-headline-lg font-bold text-primary">
             Menovo

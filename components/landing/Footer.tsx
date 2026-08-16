@@ -1,5 +1,5 @@
+import Image from "next/image";
 import CTA from "./CTA";
-import { LOGO_URL } from "@/utils/site";
 
 const footerLinks = [
   { href: "#", label: "Xidmət Şərtləri" },
@@ -16,10 +16,12 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-md pt-lg border-t border-outline-variant/10">
           <div className="flex items-center gap-sm">
-            <img
+            <Image
+              src="/icon.png"
               alt="Menovo Logo Small"
-              className="w-8 h-8 object-contain rounded bg-surface-container-low p-1 border border-outline-variant/20"
-              src={LOGO_URL}
+              width={40}
+              height={40}
+              className="object-contain rounded bg-surface-container-low p-1 border border-outline-variant/20"
             />
             <span className="font-body-md text-on-surface-variant">
               © 2026 Menovo. Bütün hüquqlar qorunur.

@@ -1,11 +1,11 @@
 export default function Loading() {
   return (
-    <div className="mx-auto w-full min-h-0 bg-background text-on-background md:relative md:my-auto md:w-[390px] md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden">
-      {/* iPhone Dynamic Island — zərif, kiçik kapsul (yalnız desktop iPhone mockup-da görünür) */}
+    <div className="mx-auto w-full min-h-0 bg-background text-on-background md:relative md:my-auto md:flex md:flex-col md:w-[390px] md:h-[720px] md:max-h-[calc(100vh_-_80px)] md:min-h-0 md:flex-shrink-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden">
+      {/* iPhone Dynamic Island - zərif, yalnız desktop iPhone mockup-da görünür */}
       <div className="hidden md:block absolute top-2.5 left-1/2 -translate-x-1/2 z-50 w-24 h-4 bg-slate-900 rounded-full mx-auto pointer-events-none" />
 
       {/* iPhone daxili viewport */}
-      <div className="relative w-full h-full bg-background md:overflow-hidden md:rounded-[38px]">
+      <div className="relative w-full min-h-0 bg-background md:flex-1 md:flex md:flex-col md:min-h-0 md:overflow-hidden md:rounded-[38px]">
         <div className="animate-pulse">
           {/* Cover skeleton */}
           <div className="relative w-full h-64 bg-surface-container-high overflow-hidden">

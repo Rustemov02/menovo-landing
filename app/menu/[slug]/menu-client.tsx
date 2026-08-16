@@ -209,9 +209,11 @@ function CategoryTabs({
 export default function MenuClient({
   restaurant,
   menu,
+  embedded = false,
 }: {
   restaurant: RestaurantInfo;
   menu: MenuItem[];
+  embedded?: boolean;
 }) {
   const [activeCategory, setActiveCategory] = useState<string>("Hamısı");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -256,6 +258,7 @@ export default function MenuClient({
 
   // Modal açıq olduqda arxa fonda body scroll-u kilidlə (scroll bleed-in qarşısını alır)
   useEffect(() => {
+    if (embedded) return;
     if (selectedItem || isModalOpen) {
       const original = document.body.style.overflow;
       document.body.style.overflow = "hidden";
@@ -263,11 +266,12 @@ export default function MenuClient({
         document.body.style.overflow = original;
       };
     }
-  }, [selectedItem, isModalOpen]);
+  }, [selectedItem, isModalOpen, embedded]);
 
   // Desktop (md+) rejimində brauzer window-unun özünün skrol olunmasını söndür —
   // yalnız iPhone çərçivəsi daxilindəki konteyner skrol olunsun.
   useEffect(() => {
+    if (embedded) return;
     const mq = window.matchMedia("(min-width: 768px)");
     if (!mq.matches) return;
     const original = document.body.style.overflow;
@@ -275,7 +279,7 @@ export default function MenuClient({
     return () => {
       document.body.style.overflow = original;
     };
-  }, []);
+  }, [embedded]);
 
   const handleSelectCategory = (cat: string) => {
     if (searching) return;
@@ -284,12 +288,32 @@ export default function MenuClient({
 
   return (
     <div
-      className={`mx-auto w-full min-h-0 bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:w-97.5 md:min-h-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6" : "pb-32"}`}
+      className={
+        embedded
+          ? "relative w-full h-full max-w-[390px] bg-background text-on-background font-body-md flex flex-col overflow-hidden"
+          : `mx-auto w-full min-h-0 bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:flex md:flex-col md:w-97.5 md:h-[720px] md:max-h-[calc(100vh_-_80px)] md:min-h-0 md:flex-shrink-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6 md:pb-0" : "pb-32 md:pb-0"}`
+      }
     >
+      {/* iPhone Dynamic Island — yalnız desktop iPhone mockup-da görünür */}
+      {!embedded && (
+        <div className="hidden md:block absolute top-2.5 left-1/2 -translate-x-1/2 z-50 w-24 h-4 bg-slate-900 rounded-full mx-auto pointer-events-none" />
+      )}
 
       {/* iPhone daxili viewport — bütün məzmun və modallar bu çərçivənin içində qalır */}
-      <div className="relative w-full min-h-0 bg-background md:overflow-hidden md:rounded-[38px]">
-        <main className="pb-6 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32">
+      <div
+        className={
+          embedded
+            ? "relative flex-1 flex flex-col min-h-0 overflow-hidden bg-background"
+            : "relative w-full min-h-0 bg-background md:flex-1 md:flex md:flex-col md:min-h-0 md:overflow-hidden md:rounded-[38px]"
+        }
+      >
+        <main
+          className={
+            embedded
+              ? "flex-1 min-h-0 overflow-y-auto pb-6 no-scrollbar bg-background"
+              : "flex-1 min-h-0 pb-6 md:flex-1 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32"
+          }
+        >
         <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
           <img
             alt="Restaurant interior"
@@ -447,7 +471,13 @@ export default function MenuClient({
       </main>
 
       {systemMode !== "VIEWER_ONLY" && (
-        <div className="fixed bottom-6 left-margin-mobile right-margin-mobile z-40 md:absolute md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-[calc(100%-32px)]">
+        <div
+          className={
+            embedded
+              ? "absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] z-40"
+              : "fixed bottom-6 left-margin-mobile right-margin-mobile z-40 md:absolute md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-[calc(100%-32px)]"
+          }
+        >
           <button className="w-full h-16 bg-on-background text-background rounded-2xl flex items-center justify-between px-6 shadow-2xl transition-transform active:scale-95 group">
             <div className="flex items-center gap-3">
               <div className="relative">
