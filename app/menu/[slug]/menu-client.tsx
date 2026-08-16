@@ -291,7 +291,7 @@ export default function MenuClient({
       className={
         embedded
           ? "relative w-full h-full max-w-[390px] bg-background text-on-background font-body-md flex flex-col overflow-hidden"
-          : `mx-auto w-full min-h-0 bg-background text-on-background font-body-md shadow-2xl md:relative md:my-auto md:flex md:flex-col md:w-97.5 md:h-[720px] md:max-h-[calc(100vh_-_80px)] md:min-h-0 md:flex-shrink-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6 md:pb-0" : "pb-32 md:pb-0"}`
+          : `mx-auto w-full min-h-screen flex flex-col min-h-[100dvh] bg-[#0d1629] text-on-background font-body-md shadow-2xl md:relative md:my-auto md:flex md:flex-col md:w-97.5 md:h-[720px] md:max-h-[calc(100vh_-_80px)] md:min-h-0 md:flex-shrink-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6 md:pb-0" : "pb-32 md:pb-0"}`
       }
     >
       {/* iPhone Dynamic Island — yalnız desktop iPhone mockup-da görünür */}
@@ -304,14 +304,14 @@ export default function MenuClient({
         className={
           embedded
             ? "relative flex-1 flex flex-col min-h-0 overflow-hidden bg-background"
-            : "relative w-full min-h-0 bg-background md:flex-1 md:flex md:flex-col md:min-h-0 md:overflow-hidden md:rounded-[38px]"
+            : "relative w-full min-h-0 flex-1 flex flex-col bg-background md:flex-1 md:flex md:flex-col md:min-h-0 md:overflow-hidden md:rounded-[38px]"
         }
       >
         <main
           className={
             embedded
-              ? "flex-1 min-h-0 overflow-y-auto pb-6 no-scrollbar bg-background"
-              : "flex-1 min-h-0 pb-6 md:flex-1 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32"
+              ? "flex-1 min-h-0 overflow-y-auto pb-6 no-scrollbar bg-background flex flex-col"
+              : "flex-1 min-h-0 pb-6 flex flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32"
           }
         >
         <header className="relative w-full h-64 bg-surface-container-high overflow-hidden">
@@ -422,10 +422,10 @@ export default function MenuClient({
           onSelect={handleSelectCategory}
         />
 
-        <div className="px-margin-mobile mt-6 flex flex-col justify-start gap-4">
+        <div className="px-margin-mobile mt-6 flex-1 flex flex-col justify-start gap-4">
           {searching ? (
             searchResults.length === 0 ? (
-              <div className="flex items-center justify-center min-h-[200px] px-4">
+              <div className="flex-1 flex items-center justify-center py-12 px-4">
                 <p className="text-center text-body-md text-on-surface-variant">
                   Axtarış üzrə heç bir nəticə tapılmadı.
                 </p>
@@ -443,9 +443,9 @@ export default function MenuClient({
               </div>
             )
           ) : displayItems.length === 0 ? (
-            <div className="flex items-center justify-center min-h-[200px] px-4">
+            <div className="flex-1 flex items-center justify-center py-12 px-4">
               <p className="text-center text-body-md text-on-surface-variant">
-                Bu kateqoriyada məhsul tapılmadı
+                Bu kateqoriyada məhsul yoxdur
               </p>
             </div>
           ) : (
