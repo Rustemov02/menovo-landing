@@ -31,14 +31,14 @@ export default function Hero() {
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#10B981] hover:bg-[#059669] text-white px-xl py-md rounded-lg font-title-md text-title-md font-bold transition-all flex items-center justify-center gap-sm shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:-translate-y-1"
+              className="bg-[#10B981] hover:bg-[#059669] text-white h-11 px-5 py-2.5 rounded-lg font-title-md text-base font-medium transition-all duration-300 ease-in-out flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5"
             >
-              <MessageCircle size={24} className="fill-current" />
+              <MessageCircle size={20} className="fill-current w-5 h-5 shrink-0" />
               WhatsApp-la Sifariş Et
             </a>
             <Link
               href={DEMO_ROUTE}
-              className="bg-transparent border-[1.5px] border-outline-variant text-inverse-surface hover:border-primary hover:text-primary px-xl py-md rounded-lg font-title-md text-title-md transition-all flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+              className="bg-transparent border-[1.5px] border-outline-variant text-inverse-surface hover:border-primary hover:text-primary h-11 px-5 py-2.5 rounded-lg font-title-md text-base font-medium transition-all duration-300 ease-in-out flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_20px_rgba(245,158,11,0.2)]"
             >
               Canlı Demoya Bax
             </Link>

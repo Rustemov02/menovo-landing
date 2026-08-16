@@ -25,7 +25,7 @@ export default function MenuMockup() {
       {/* Ekran — skrinşotun yerləşdiyi daxili viewport.
           `relative w-full h-full overflow-hidden` — şəkil heç vaxt kenarlardan dəşmir,
           üstü yuxarıda sabit qalır (object-top). */}
-      <div className="absolute inset-0 z-10 flex flex-col overflow-hidden rounded-[2rem] bg-surface-container-lowest">
+      <div className="absolute inset-0 z-10 flex flex-col overflow-hidden rounded-4xl bg-surface-container-lowest">
         {/* Dinamik ada (safe area) üçün təhlükəsiz boşluq — header hissəsini örtməz */}
         {/* <div className="shrink-0" aria-hidden="true" /> */}
         <div className="relative flex-1 min-h-0">
