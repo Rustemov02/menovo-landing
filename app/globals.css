@@ -130,19 +130,22 @@
   --foreground: #dae2fd;
 }
 
+/* GLOBAL FON FİKSİ:
+   html + body üçün QR menyunun tünd göy rəngi (#0d1629) ilə eyrniləşdirilmiş,
+   dəyişən viewport hündürlüyü (dvh) ilə təmin edilir. Beləliklə mobil brauzerlərdə
+   ünvan sətri açılıb-bağlandıqda da aşağıda fərqli rəngdə boşluq sızmaz. */
+html,
 body {
-  /* Tünd neytral gradient: mərkəzdəki mobil menyu "Mobile Simulator" görünüşü alsın */
-  background: linear-gradient(135deg, #2b2f36 0%, #17191d 55%, #22252b 100%);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  min-height: max(884px, 100dvh);
+  background-color: #0d1629;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
 }
 
-/* Desktop (md+) üçün: iPhone simulyatoru ekrana sığsın və xarici scroll gizlənsin */
-@media (min-width: 768px) {
-  body {
-    min-height: 100dvh;
-  }
+body {
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
 }
 
 /* Custom utilities */

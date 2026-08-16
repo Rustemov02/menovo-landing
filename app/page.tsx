@@ -6,7 +6,7 @@ import Footer from "@/components/landing/Footer";
 
 export default function Home() {
   return (
-    <div className="menovo-theme relative flex flex-col min-h-screen bg-surface text-on-surface">
+    <div className="menovo-theme relative flex flex-col min-h-dvh bg-surface text-on-surface">
       <Header />
       <main className="flex-1">
         <Hero />

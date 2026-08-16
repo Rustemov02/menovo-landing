@@ -291,7 +291,7 @@ export default function MenuClient({
       className={
         embedded
           ? "relative w-full h-full max-w-[390px] bg-background text-on-background font-body-md flex flex-col overflow-hidden"
-          : `mx-auto w-full min-h-screen flex flex-col min-h-[100dvh] bg-[#0d1629] text-on-background font-body-md shadow-2xl md:relative md:my-auto md:flex md:flex-col md:w-97.5 md:h-[720px] md:max-h-[calc(100vh_-_80px)] md:min-h-0 md:flex-shrink-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6 md:pb-0" : "pb-32 md:pb-0"}`
+          : `mx-auto w-full min-h-[100dvh] flex flex-col bg-[#0d1629] text-on-background font-body-md shadow-2xl md:relative md:my-auto md:flex md:flex-col md:w-97.5 md:h-[720px] md:max-h-[calc(100vh_-_80px)] md:min-h-0 md:flex-shrink-0 md:border-[6px] md:border-slate-800/90 md:rounded-[44px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] md:overflow-hidden ${systemMode === "VIEWER_ONLY" ? "pb-6 md:pb-0" : "pb-32 md:pb-0"}`
       }
     >
       {/* iPhone Dynamic Island — yalnız desktop iPhone mockup-da görünür */}
@@ -505,12 +505,12 @@ export default function MenuClient({
 
       {/* Item Detail Modal — iPhone çərçivəsinin içində (absolute) aşağıdan yuxarıya açılır */}
       {selectedItem && (
-        <div className="absolute inset-0 z-70 flex items-end justify-center">
+        <div className="fixed inset-0 z-70 flex items-end justify-center md:absolute">
           <div
             className="absolute inset-0 bg-black/60 transition-opacity"
             onClick={() => setSelectedItem(null)}
           />
-          <div className="relative z-10 w-full bg-surface rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-slideUp">
+          <div className="relative z-10 w-full bg-[#0d1629] rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-slideUp">
             <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-headline-md text-headline-md text-on-surface">
@@ -523,7 +523,7 @@ export default function MenuClient({
                 <X size={20} />
               </button>
             </div>
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
+            <div className="space-y-4 max-h-[70dvh] overflow-y-auto no-scrollbar pb-6">
               {selectedItem.image && (
                 <img
                   loading="lazy"
@@ -571,12 +571,12 @@ export default function MenuClient({
           Beləliklə modal state false ikən tamamilə DOM-dan silinir və heç bir CSS
           media-query / avtomatik açılma ssenarisində görünə bilməz. */}
       {isModalOpen && (
-        <>
+        <div className="fixed inset-0 z-60 md:absolute">
           <div
-            className="absolute inset-0 bg-black/50 z-60"
+            className="absolute inset-0 bg-black/60"
             onClick={() => setIsModalOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 z-70 bg-surface rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] mx-auto">
+          <div className="absolute bottom-0 left-0 right-0 z-70 bg-[#0d1629] rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] mx-auto">
         <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-headline-md text-headline-md text-on-surface">
@@ -589,7 +589,7 @@ export default function MenuClient({
             <X size={20} />
           </button>
         </div>
-        <div className="space-y-6 max-h-[70vh] overflow-y-auto no-scrollbar pb-6">
+        <div className="space-y-6 max-h-[70dvh] overflow-y-auto no-scrollbar pb-6">
           {restaurant.description && (
             <p className="text-body-md text-on-surface-variant">
               {restaurant.description}
@@ -693,7 +693,7 @@ export default function MenuClient({
           </div>
         </div>
       </div>
-        </>
+    </div>
       )}
       </div>
     </div>
