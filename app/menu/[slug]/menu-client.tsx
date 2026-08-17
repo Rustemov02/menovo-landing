@@ -227,6 +227,7 @@ function MenuClientContent({
     addToCart,
     removeFromCart,
     updateQuantity,
+    clearCart,
   } = useCart();
   const [activeCategory, setActiveCategory] = useState<string>("Hamısı");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -234,6 +235,12 @@ function MenuClientContent({
   const [copied, setCopied] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [search, setSearch] = useState("");
+  // Sifariş (checkout) üçün state-lər: masa nömrəsi, göndərilmə statusu,
+  // səhv mesajı və uğurlu təsdiq modalının göstərilməsi.
+  const [tableNumber, setTableNumber] = useState("");
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
 
   // İş saatları varsa hazırkı vaxtla müqayisə edilib açıq/bağlı statusu hesablanır;
@@ -300,6 +307,84 @@ function MenuClientContent({
     setActiveCategory(cat);
   };
 
+  // Restoranın ID-si — restaurant obyektində olmadıqda menyudakı ilk məhsuldan
+  // (MenuItem.restaurantId) təyin olunur. Sifariş yaratmaq üçün lazımdır.
+  const restaurantId = useMemo(() => {
+    const r = restaurant as RestaurantInfo & { id?: string; restaurantId?: string };
+    if (r?.id) return r.id;
+    if (r?.restaurantId) return r.restaurantId;
+    const first = menu?.[0];
+    return first?.restaurantId;
+  }, [restaurant, menu]);
+
+  /**
+   * Sifarişi təsdiqləyir: cari səbət məzmununu backend-in sifariş endpointinə
+   * (POST {baseUrl}/orders) göndərir. Uğur olduqda səbəti təmizləyir, səbət
+   * modalını bağlayır və müştəriyə təsdiq modalını göstərir. Kitchen paneli
+   * (admin/kitchen) backend-in yeni sifariş eventini (WebSocket) yayımlaması
+   * ilə anında yenilənir.
+   */
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) return;
+
+    const parsedTable = tableNumber.trim();
+    if (!parsedTable) {
+      setOrderError("Zəhmət olmasa masa nömrəsini daxil edin");
+      return;
+    }
+    if (Number.isNaN(Number(parsedTable)) || Number(parsedTable) <= 0) {
+      setOrderError("Masa nömrəsi düzgün deyil");
+      return;
+    }
+
+    setIsOrdering(true);
+    setOrderError(null);
+
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!baseUrl) {
+        throw new Error("API URL konfiqurasiyası tapılmadı");
+      }
+
+      const payload = {
+        restaurantId,
+        items: cartItems.map(({ item, quantity }) => ({
+          id: item._id,
+          name: item.name,
+          price: item.price ?? 0,
+          quantity,
+        })),
+        tableNumber: Number(parsedTable),
+        tableId: restaurantId ? `${restaurantId}:${parsedTable}` : undefined,
+        totalPrice: Math.round(totalPrice * 100) / 100,
+        status: "PENDING",
+      };
+
+      const res = await fetch(`${baseUrl}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => null);
+        throw new Error(errBody || `Sifariş göndərilə bilmədi (${res.status})`);
+      }
+
+      // Uğur: səbəti təmizlə, səbət modalını bağla, təsdiq modalını göstər.
+      clearCart();
+      setTableNumber("");
+      setIsCartOpen(false);
+      setOrderConfirmed(true);
+    } catch (e) {
+      setOrderError(
+        e instanceof Error ? e.message : "Sifariş göndərilə bilmədi. Yenidən cəhd edin",
+      );
+    } finally {
+      setIsOrdering(false);
+    }
+  };
+
   return (
     <div
       className={
@@ -341,8 +426,18 @@ function MenuClientContent({
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute top-4 w-full px-4 flex justify-between items-center z-10">
             {systemMode !== "VIEWER_ONLY" && (
-              <button className="p-2 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-colors duration-200">
+              <button
+                type="button"
+                onClick={() => setIsCartOpen(true)}
+                aria-label="Səbəti aç"
+                className="relative p-2 rounded-full bg-black/30 backdrop-blur-md text-white hover:bg-black/50 transition-colors duration-200"
+              >
                 <ShoppingCart size={20} />
+                {totalQuantity > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] w-4.5 h-4.5 min-w-4.5 px-0.5 flex items-center justify-center rounded-full border border-white font-bold">
+                    {totalQuantity > 99 ? "99+" : totalQuantity}
+                  </span>
+                )}
               </button>
             )}
           </div>
@@ -674,8 +769,27 @@ function MenuClientContent({
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-surface-variant pt-4 mt-2">
-                  <div className="flex justify-between items-center mb-4">
+                <div className="border-t border-surface-variant pt-4 mt-2 space-y-3">
+                  {/* Masa nömrəsi seçimi */}
+                  <label className="block">
+                    <span className="font-label-sm text-label-sm text-on-surface-variant mb-1.5 block">
+                      Masa nömrəsi
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={tableNumber}
+                      onChange={(e) => setTableNumber(e.target.value.replace(/[^\d]/g, ""))}
+                      placeholder="Məs. 12"
+                      className="w-full h-12 px-4 rounded-xl bg-surface-container-lowest border border-surface-container-low text-on-surface placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors"
+                    />
+                  </label>
+
+                  {orderError && (
+                    <p className="text-sm text-red-400 font-medium px-1">{orderError}</p>
+                  )}
+
+                  <div className="flex justify-between items-center">
                     <span className="font-label-sm text-label-sm text-on-surface-variant">
                       Cəmi ({totalQuantity} məhsul)
                     </span>
@@ -684,14 +798,51 @@ function MenuClientContent({
                     </span>
                   </div>
                   <button
-                    onClick={() => setIsCartOpen(false)}
-                    className="w-full py-3.5 bg-on-background text-background rounded-2xl font-label-sm text-label-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98]"
+                    type="button"
+                    onClick={handleCheckout}
+                    disabled={isOrdering || cartItems.length === 0}
+                    className="w-full py-3.5 bg-on-background text-background rounded-2xl font-label-sm text-label-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none"
                   >
-                    <Check size={18} /> Sifarişi təsdiqlə
+                    {isOrdering ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-background/40 border-t-background rounded-full animate-spin" />
+                        Göndərilir...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={18} /> Sifarişi təsdiqlə
+                      </>
+                    )}
                   </button>
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Sifariş Təsdiq Modalı — müştəriyə sifarişin mətbəxə göndərildiyini bildirir.
+          Yalnız orderConfirmed === true olduqda render olunur. */}
+      {orderConfirmed && (
+        <div className="fixed inset-0 z-80 flex items-center justify-center p-6 md:absolute">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setOrderConfirmed(false)} />
+          <div className="relative z-10 w-full max-w-sm bg-[#0d1629] rounded-3xl p-8 text-center shadow-[0_-10px_40px_rgba(0,0,0,0.2)] animate-slideUp">
+            <div className="w-16 h-16 rounded-full bg-primary/15 text-primary flex items-center justify-center mx-auto mb-4">
+              <Check size={32} />
+            </div>
+            <h2 className="font-headline-md text-headline-md text-on-surface mb-2">
+              Sifarişiniz qəbul edildi!
+            </h2>
+            <p className="text-body-md text-on-surface-variant mb-6">
+              Sifarişiniz mətbəxə göndərildi. Tezliklə hazırlanacaq.
+            </p>
+            <button
+              type="button"
+              onClick={() => setOrderConfirmed(false)}
+              className="w-full py-3.5 bg-on-background text-background rounded-2xl font-label-sm text-label-sm hover:opacity-90 transition-opacity active:scale-[0.98]"
+            >
+              Bağla
+            </button>
           </div>
         </div>
       )}
