@@ -5,13 +5,16 @@ import type { MenuItem, RestaurantInfo } from "@/types";
 import {
   Check,
   ChevronRight,
+  Minus,
   Navigation,
   Plus,
   Search,
   ShoppingBasket,
   ShoppingCart,
+  Trash2,
   X,
 } from "lucide-react";
+import { CartProvider, useCart } from "@/contexts/CartContext";
 
 /**
  * İş saatları (~ "09:00-22:00", "09:00 – 22:00", "09:00–14:00, 17:00-23:00") mətnini
@@ -50,13 +53,15 @@ function isRestaurantOpen(
   return found ? false : null;
 }
 
-function AddButton() {
+function AddButton({ item }: { item: MenuItem }) {
   const [clicked, setClicked] = useState(false);
+  const { addToCart } = useCart();
 
   return (
     <button
       onClick={(e) => {
         e.stopPropagation();
+        addToCart(item);
         setClicked(true);
         setTimeout(() => setClicked(false), 800);
       }}
@@ -117,7 +122,7 @@ function MenuItemCard({
               <span className="font-bold text-primary font-body-lg text-body-lg">
                 {(item.price ?? 0).toFixed(2)} AZN
               </span>
-              {systemMode !== "VIEWER_ONLY" && <AddButton />}
+              {systemMode !== "VIEWER_ONLY" && <AddButton item={item} />}
             </div>
           </div>
         </div>
@@ -128,7 +133,7 @@ function MenuItemCard({
             <span className="font-bold text-primary font-body-lg text-body-lg whitespace-nowrap">
               {(item.price ?? 0).toFixed(2)} AZN
             </span>
-            {systemMode !== "VIEWER_ONLY" && <AddButton />}
+            {systemMode !== "VIEWER_ONLY" && <AddButton item={item} />}
           </div>
         </div>
       )}
@@ -206,7 +211,7 @@ function CategoryTabs({
   );
 }
 
-export default function MenuClient({
+function MenuClientContent({
   restaurant,
   menu,
   embedded = false,
@@ -215,8 +220,17 @@ export default function MenuClient({
   menu: MenuItem[];
   embedded?: boolean;
 }) {
+  const {
+    items: cartItems,
+    totalQuantity,
+    totalPrice,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+  } = useCart();
   const [activeCategory, setActiveCategory] = useState<string>("Hamısı");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [search, setSearch] = useState("");
@@ -259,14 +273,14 @@ export default function MenuClient({
   // Modal açıq olduqda arxa fonda body scroll-u kilidlə (scroll bleed-in qarşısını alır)
   useEffect(() => {
     if (embedded) return;
-    if (selectedItem || isModalOpen) {
+    if (selectedItem || isModalOpen || isCartOpen) {
       const original = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = original;
       };
     }
-  }, [selectedItem, isModalOpen, embedded]);
+  }, [selectedItem, isModalOpen, isCartOpen, embedded]);
 
   // Desktop (md+) rejimində brauzer window-unun özünün skrol olunmasını söndür —
   // yalnız iPhone çərçivəsi daxilindəki konteyner skrol olunsun.
@@ -470,7 +484,7 @@ export default function MenuClient({
         </div>
       </main>
 
-      {systemMode !== "VIEWER_ONLY" && (
+      {systemMode !== "VIEWER_ONLY" && totalQuantity > 0 && (
         <div
           className={
             embedded
@@ -478,20 +492,23 @@ export default function MenuClient({
               : "fixed bottom-6 left-margin-mobile right-margin-mobile z-40 md:absolute md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-[calc(100%-32px)]"
           }
         >
-          <button className="w-full h-16 bg-on-background text-background rounded-2xl flex items-center justify-between px-6 shadow-2xl transition-transform active:scale-95 group">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full h-16 bg-on-background text-background rounded-2xl flex items-center justify-between px-6 shadow-2xl transition-transform active:scale-95 group"
+          >
             <div className="flex items-center gap-3">
               <div className="relative">
                 <ShoppingBasket size={28} />
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-on-background font-bold">
-                  2
+                  {totalQuantity}
                 </span>
               </div>
               <div className="text-left">
                 <span className="font-label-sm text-label-sm block opacity-70">
-                  Səbət (2 məhsul)
+                  Səbət ({totalQuantity} məhsul)
                 </span>
                 <span className="font-headline-md text-headline-md block leading-tight">
-                  16.50 AZN
+                  {totalPrice.toFixed(2)} AZN
                 </span>
               </div>
             </div>
@@ -549,6 +566,8 @@ export default function MenuClient({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      addToCart(selectedItem);
+                      setSelectedItem(null);
                     }}
                     className="px-6 py-3 bg-primary text-on-primary rounded-full font-label-sm text-label-sm flex items-center gap-2 hover:bg-primary/90 transition-colors"
                   >
@@ -563,6 +582,116 @@ export default function MenuClient({
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cart Drawer — yalnız isCartOpen === true olduqda render olunur. Seçilmiş
+          məhsullar, miqdarlar (+/-) və silmə burada idarə olunur; dəyişikliklər
+          Cart Context vasitəsilə dərhal floating bar-a əks olunur. */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-80 flex items-end justify-center md:absolute">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setIsCartOpen(false)}
+          />
+          <div className="relative z-10 w-full bg-[#0d1629] rounded-t-4xl p-6 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[80dvh] overflow-hidden animate-slideUp">
+            <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-headline-md text-headline-md text-on-surface">
+                Səbət ({totalQuantity} məhsul)
+              </h2>
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="text-on-surface-variant p-2 rounded-full hover:bg-surface-variant transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {cartItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <ShoppingBasket size={40} className="text-on-surface-variant mb-3" />
+                <p className="text-body-md text-on-surface-variant">
+                  Səbətiniz boşdur. Məhsul əlavə edin.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-4 pb-4">
+                  {cartItems.map(({ item, quantity }) => (
+                    <div
+                      key={item._id}
+                      className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm"
+                    >
+                      {item.image ? (
+                        <img
+                          loading="lazy"
+                          decoding="async"
+                          src={item.image}
+                          alt={item.name}
+                          className="w-14 h-14 object-cover rounded-xl shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-xl bg-surface-container-high shrink-0 flex items-center justify-center text-on-surface-variant">
+                          <ShoppingBasket size={20} />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-body-md text-body-md text-on-surface truncate">
+                          {item.name}
+                        </p>
+                        <p className="text-sm text-primary font-bold">
+                          {((item.price ?? 0) * quantity).toFixed(2)} AZN
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => updateQuantity(item._id, quantity - 1)}
+                          className="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center hover:bg-surface-variant transition-colors active:scale-95"
+                          aria-label="Miqdarı azalt"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="w-6 text-center font-bold text-on-surface">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item._id, quantity + 1)}
+                          className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95"
+                          aria-label="Miqdarı artır"
+                        >
+                          <Plus size={16} />
+                        </button>
+                        <button
+                          onClick={() => removeFromCart(item._id)}
+                          className="w-8 h-8 rounded-full text-on-surface-variant flex items-center justify-center hover:bg-surface-variant hover:text-red-500 transition-colors active:scale-95"
+                          aria-label="Səbətdən sil"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-surface-variant pt-4 mt-2">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="font-label-sm text-label-sm text-on-surface-variant">
+                      Cəmi ({totalQuantity} məhsul)
+                    </span>
+                    <span className="font-headline-md text-headline-md text-on-surface">
+                      {totalPrice.toFixed(2)} AZN
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setIsCartOpen(false)}
+                    className="w-full py-3.5 bg-on-background text-background rounded-2xl font-label-sm text-label-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98]"
+                  >
+                    <Check size={18} /> Sifarişi təsdiqlə
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -697,5 +826,21 @@ export default function MenuClient({
       )}
       </div>
     </div>
+  );
+}
+
+export default function MenuClient({
+  restaurant,
+  menu,
+  embedded = false,
+}: {
+  restaurant: RestaurantInfo;
+  menu: MenuItem[];
+  embedded?: boolean;
+}) {
+  return (
+    <CartProvider>
+      <MenuClientContent restaurant={restaurant} menu={menu} embedded={embedded} />
+    </CartProvider>
   );
 }
