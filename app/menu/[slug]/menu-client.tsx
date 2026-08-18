@@ -110,11 +110,11 @@ function MenuItemCard({
     >
       {hasImage ? (
         <div className="flex">
-          <div className="w-28 h-28 shrink-0 self-start overflow-hidden rounded-l-2xl">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 relative overflow-hidden rounded-lg">
             <img
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover rounded-l-2xl"
+              className="w-full h-full object-cover rounded-lg"
               alt={item.name}
               src={item.image}
             />
@@ -654,7 +654,7 @@ function MenuClientContent({
             <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-headline-md text-headline-md text-on-surface">
-                Məhsul Detayı
+                Məhsul haqqında
               </h2>
               <button
                 onClick={() => setSelectedItem(null)}
@@ -881,12 +881,12 @@ function MenuClientContent({
           Beləliklə modal state false ikən tamamilə DOM-dan silinir və heç bir CSS
           media-query / avtomatik açılma ssenarisində görünə bilməz. */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-60 md:absolute">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0"
             onClick={() => setIsModalOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 z-70 bg-[#0d1629] rounded-t-4xl p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] mx-auto">
+          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl p-6 bg-[#0d1629] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
         <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-headline-md text-headline-md text-on-surface">
