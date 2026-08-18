@@ -249,7 +249,12 @@ function MenuClientContent({
   const searchParams = useSearchParams();
   const tableId = searchParams.get("tableId") ?? undefined;
   const tableName = searchParams.get("tableName") ?? undefined;
-  const token = searchParams.get("token") ?? undefined;
+  // Token həm `token`, həm də `tableToken` URL parametr adı ilə gələ bilər;
+  // hər ikisi nəzərə alınır.
+  const token =
+    searchParams.get("token") ??
+    searchParams.get("tableToken") ??
+    undefined;
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
 
   // İş saatları varsa hazırkı vaxtla müqayisə edilib açıq/bağlı statusu hesablanır;
@@ -357,7 +362,9 @@ function MenuClientContent({
         })),
         tableId,
         tableName,
-        token,
+        // Backend masa tokenini `tableToken` sahəsində gözləyir (`token` kimi
+        // göndərilən sahə tanınmır və "Masa tokeni teleb olunur" xətası verir).
+        tableToken: token,
         totalPrice: Math.round(totalPrice * 100) / 100,
         status: "PENDING",
       };
@@ -692,7 +699,7 @@ function MenuClientContent({
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsCartOpen(false)}
           />
-          <div className="relative w-[85%] max-w-sm bg-[#0d1629] h-full shadow-2xl flex flex-col animate-slide-in-right">
+          <div className="relative w-[85%] bg-[#0d1629] h-full shadow-2xl flex flex-col animate-slide-in-right">
             {/* Header */}
             <div className="p-4 border-b border-surface-variant flex items-center justify-between bg-[#0d1629]">
               <div className="flex items-center gap-2">
