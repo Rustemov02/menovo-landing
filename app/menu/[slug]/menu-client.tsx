@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { MenuItem, RestaurantInfo } from "@/types";
 import {
+  AlertCircle,
   Check,
+  CheckCircle2,
   ChevronRight,
   Minus,
   Navigation,
@@ -56,6 +58,42 @@ function isRestaurantOpen(
   return found ? false : null;
 }
 
+/**
+ * Backend səhv cavabından istifadəçi dostu mesaj çıxarır. Backend bəzən cavab
+ * olaraq düz JSON obyekti (məs. `{ "message": "..." }`) və ya JSON mətnini
+ * qaytarır — bu funksiya həm JSON, həm də düz mətn formatını emal edir ki,
+ * səhv ekranda çılpaq JSON obyekti kimi görünməsin.
+ */
+function extractErrorMessage(body: string | null, status: number): string {
+  const fallback = `Sifariş göndərilə bilmədi (${status})`;
+
+  if (body) {
+    const trimmed = body.trim();
+    if (trimmed) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        const msg =
+          typeof parsed === "string"
+            ? parsed
+            : parsed?.message ||
+              parsed?.error ||
+              parsed?.detail ||
+              null;
+        if (typeof msg === "string" && msg.trim()) {
+          return msg.trim();
+        }
+      } catch {
+        // JSON deyil — düz mətn olan qısa, oxunaqlı cavabı istifadə edək.
+        if (trimmed.length <= 200) {
+          return trimmed;
+        }
+      }
+    }
+  }
+
+  return fallback;
+}
+
 function AddButton({ item }: { item: MenuItem }) {
   const [clicked, setClicked] = useState(false);
   const { addToCart } = useCart();
@@ -92,14 +130,15 @@ function MenuItemCard({
 
   const content = (
     <>
-      <h3 className="font-headline-md text-headline-md text-on-surface">
+      <h3 className="font-headline-md text-headline-md text-on-surface truncate">
         {item.name}
       </h3>
-      {item.description && (
-        <p className="font-body-md text-body-md text-on-surface-variant mt-1 line-clamp-2">
-          {item.description}
-        </p>
-      )}
+      {/* Təsvir həmişə render olunur (boş olsa belə) ki, bütün kartlarda mətn
+          sahəsi eyni hündürlükdə olsun. `truncate` ilə 1 sətirdən uzun təsvir
+          ellipsislə kəsilir. */}
+      <p className="font-body-md text-body-md text-on-surface-variant mt-1 truncate">
+        {item.description || ""}
+      </p>
     </>
   );
 
@@ -109,7 +148,7 @@ function MenuItemCard({
       className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-100 transition-transform active:scale-[0.98] cursor-pointer"
     >
       {hasImage ? (
-        <div className="flex">
+        <div className="flex items-center">
           <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 relative overflow-hidden rounded-lg">
             <img
               loading="lazy"
@@ -241,8 +280,23 @@ function MenuClientContent({
   // Sifariş (checkout) üçün state-lər: göndərilmə statusu, səhv mesajı və
   // uğurlu təsdiq toast-ının göstərilməsi.
   const [isOrdering, setIsOrdering] = useState(false);
-  const [orderError, setOrderError] = useState<string | null>(null);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
+  // Yüngül toast bildirişi — sifariş xətası/uğuru üçün. `showToast` çağırıldıqda
+  // avtomatik olaraq bir neçə saniyədən sonra yox olur.
+  const [toast, setToast] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (type: "success" | "error", message: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ type, message });
+    toastTimer.current = setTimeout(() => {
+      setToast(null);
+      toastTimer.current = null;
+    }, 4000);
+  };
 
   // Masa məlumatı URL parametrlərindən avtomatik oxunur (QR / paylaşılan link):
   // `tableId`, `tableName`, `token`. Manual masa daxil etmə yoxdur.
@@ -362,7 +416,6 @@ function MenuClientContent({
     if (cartItems.length === 0) return;
 
     setIsOrdering(true);
-    setOrderError(null);
 
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -372,14 +425,24 @@ function MenuClientContent({
 
       // Payload: URL parametrlərindən gələn masa məlumatları (tableId, tableName,
       // token) daxil edilir. Manual masa girişi yoxdur.
+      //
+      // Hər item-də backend-in gözlədiyi `id`, `name`, `price` və `quantity`
+      // sahələrinin mütləq mövcud və düzgün tipdə olması təmin edilir. `price` və
+      // `quantity` ədədə çevrilir ki, backend-in "Hər məhsulda ad, qiymət və miqdar
+      // olmalıdır" doğrulaması pozulmasın. `id` üçün həm `id` həm də `_id` yoxlanılır.
       const payload = {
         restaurantId,
-        items: cartItems.map(({ item, quantity }) => ({
-          id: item._id,
-          name: item.name,
-          price: item.price ?? 0,
-          quantity,
-        })),
+        items: cartItems.map(({ item, quantity }) => {
+          const src = item as MenuItem & { title?: string };
+          const rawPrice = Number(src.price);
+          const rawQuantity = Number(quantity);
+          return {
+            id: src.id || src._id,
+            name: String(src.name || src.title || ""),
+            price: Number.isFinite(rawPrice) ? rawPrice : 0,
+            quantity: Number.isFinite(rawQuantity) ? rawQuantity : 1,
+          };
+        }),
         tableId,
         tableName,
         // Backend masa tokenini `tableToken` sahəsində gözləyir (`token` kimi
@@ -397,16 +460,20 @@ function MenuClientContent({
 
       if (!res.ok) {
         const errBody = await res.text().catch(() => null);
-        throw new Error(errBody || `Sifariş göndərilə bilmədi (${res.status})`);
+        throw new Error(extractErrorMessage(errBody, res.status));
       }
 
-      // Uğur: səbəti təmizlə, səbət panelini bağla, təsdiq toast-ını göstər.
+      // Uğur: səbəti təmizlə, səbət panelini bağla, təsdiq modalını göstər.
       clearCart();
       setIsCartOpen(false);
       setOrderConfirmed(true);
+      showToast("success", "Sifarişiniz mətbəxə göndərildi.");
     } catch (e) {
-      setOrderError(
-        e instanceof Error ? e.message : "Sifariş göndərilə bilmədi. Yenidən cəhd edin",
+      showToast(
+        "error",
+        e instanceof Error
+          ? e.message
+          : "Sifariş göndərilə bilmədi. Yenidən cəhd edin",
       );
     } finally {
       setIsOrdering(false);
@@ -824,9 +891,6 @@ function MenuClientContent({
                       </span>
                     </div>
                   </div>
-                  {orderError && (
-                    <p className="text-sm text-red-400 font-medium px-1">{orderError}</p>
-                  )}
                   <button
                     type="button"
                     onClick={handleCheckout}
@@ -1020,6 +1084,27 @@ function MenuClientContent({
     </div>
       )}
       </div>
+      {/* Toast bildirişi — sifariş xətası/uğuru barədə istifadəçi dostu mesaj.
+          Sabit (fixed) mövqedə, bütün modalların üstündə (z-[90]) göstərilir və
+          bir neçə saniyədən sonra avtomatik yox olur. */}
+      {toast && (
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-6 z-[90] w-[calc(100%-2rem)] max-w-sm pointer-events-none">
+          <div
+            className={`flex items-start gap-3 rounded-2xl p-4 shadow-2xl animate-slideUp border ${
+              toast.type === "error"
+                ? "bg-[#3a1114] text-red-200 border-red-500/40"
+                : "bg-[#0f2a1d] text-green-200 border-green-500/40"
+            }`}
+          >
+            {toast.type === "error" ? (
+              <AlertCircle size={20} className="shrink-0 text-red-400 mt-0.5" />
+            ) : (
+              <CheckCircle2 size={20} className="shrink-0 text-green-400 mt-0.5" />
+            )}
+            <p className="text-sm font-medium leading-snug">{toast.message}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
