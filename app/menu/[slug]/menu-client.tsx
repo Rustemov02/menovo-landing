@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { MenuItem, RestaurantInfo } from "@/types";
 import {
   Check,
   ChevronRight,
   Minus,
   Navigation,
+  Phone,
   Plus,
   Search,
+  ShoppingBag,
   ShoppingBasket,
   ShoppingCart,
   Trash2,
@@ -107,7 +110,7 @@ function MenuItemCard({
     >
       {hasImage ? (
         <div className="flex">
-          <div className="w-28 shrink-0 self-stretch overflow-hidden">
+          <div className="w-28 h-28 shrink-0 self-start overflow-hidden rounded-l-2xl">
             <img
               loading="lazy"
               decoding="async"
@@ -235,12 +238,18 @@ function MenuClientContent({
   const [copied, setCopied] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [search, setSearch] = useState("");
-  // Sifariş (checkout) üçün state-lər: masa nömrəsi, göndərilmə statusu,
-  // səhv mesajı və uğurlu təsdiq modalının göstərilməsi.
-  const [tableNumber, setTableNumber] = useState("");
+  // Sifariş (checkout) üçün state-lər: göndərilmə statusu, səhv mesajı və
+  // uğurlu təsdiq toast-ının göstərilməsi.
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
+
+  // Masa məlumatı URL parametrlərindən avtomatik oxunur (QR / paylaşılan link):
+  // `tableId`, `tableName`, `token`. Manual masa daxil etmə yoxdur.
+  const searchParams = useSearchParams();
+  const tableId = searchParams.get("tableId") ?? undefined;
+  const tableName = searchParams.get("tableName") ?? undefined;
+  const token = searchParams.get("token") ?? undefined;
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
 
   // İş saatları varsa hazırkı vaxtla müqayisə edilib açıq/bağlı statusu hesablanır;
@@ -327,16 +336,6 @@ function MenuClientContent({
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
 
-    const parsedTable = tableNumber.trim();
-    if (!parsedTable) {
-      setOrderError("Zəhmət olmasa masa nömrəsini daxil edin");
-      return;
-    }
-    if (Number.isNaN(Number(parsedTable)) || Number(parsedTable) <= 0) {
-      setOrderError("Masa nömrəsi düzgün deyil");
-      return;
-    }
-
     setIsOrdering(true);
     setOrderError(null);
 
@@ -346,6 +345,8 @@ function MenuClientContent({
         throw new Error("API URL konfiqurasiyası tapılmadı");
       }
 
+      // Payload: URL parametrlərindən gələn masa məlumatları (tableId, tableName,
+      // token) daxil edilir. Manual masa girişi yoxdur.
       const payload = {
         restaurantId,
         items: cartItems.map(({ item, quantity }) => ({
@@ -354,8 +355,9 @@ function MenuClientContent({
           price: item.price ?? 0,
           quantity,
         })),
-        tableNumber: Number(parsedTable),
-        tableId: restaurantId ? `${restaurantId}:${parsedTable}` : undefined,
+        tableId,
+        tableName,
+        token,
         totalPrice: Math.round(totalPrice * 100) / 100,
         status: "PENDING",
       };
@@ -371,9 +373,8 @@ function MenuClientContent({
         throw new Error(errBody || `Sifariş göndərilə bilmədi (${res.status})`);
       }
 
-      // Uğur: səbəti təmizlə, səbət modalını bağla, təsdiq modalını göstər.
+      // Uğur: səbəti təmizlə, səbət panelini bağla, təsdiq toast-ını göstər.
       clearCart();
-      setTableNumber("");
       setIsCartOpen(false);
       setOrderConfirmed(true);
     } catch (e) {
@@ -512,14 +513,14 @@ function MenuClientContent({
                 <span>🕒</span> {restaurant.workingHours}
               </button>
             )}
-            {restaurant.phone && (
+            {/* {restaurant.phone && (
               <a
                 href={`tel:${restaurant.phone.replace(/[^\d+]/g, "")}`}
                 className="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all duration-200 flex items-center gap-2"
               >
                 <span>📞</span> {restaurant.phone}
               </a>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -681,31 +682,36 @@ function MenuClientContent({
         </div>
       )}
 
-      {/* Cart Drawer — yalnız isCartOpen === true olduqda render olunur. Seçilmiş
-          məhsullar, miqdarlar (+/-) və silmə burada idarə olunur; dəyişikliklər
-          Cart Context vasitəsilə dərhal floating bar-a əks olunur. */}
+      {/* Cart Drawer (Stitch UI) — sağdan açılan panel. Məhsullar, miqdarlar (+/-)
+          və silmə burada idarə olunur; dəyişikliklər Cart Context vasitəsilə dərhal
+          floating bar-a əks olunur. Masa məlumatı URL parametrlərindən (tableId,
+          tableName, token) gəlir — manual redaktə yoxdur. */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-80 flex items-end justify-center md:absolute">
+        <div className="fixed inset-0 z-80 flex justify-end md:absolute">
           <div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsCartOpen(false)}
           />
-          <div className="relative z-10 w-full bg-[#0d1629] rounded-t-4xl p-6 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[80dvh] overflow-hidden animate-slideUp">
-            <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-headline-md text-headline-md text-on-surface">
-                Səbət ({totalQuantity} məhsul)
-              </h2>
+          <div className="relative w-[85%] max-w-sm bg-[#0d1629] h-full shadow-2xl flex flex-col animate-slide-in-right">
+            {/* Header */}
+            <div className="p-4 border-b border-surface-variant flex items-center justify-between bg-[#0d1629]">
+              <div className="flex items-center gap-2">
+                <ShoppingBag size={20} className="text-primary" />
+                <h2 className="font-headline-md text-headline-md text-on-surface">
+                  Səbətim
+                </h2>
+              </div>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="text-on-surface-variant p-2 rounded-full hover:bg-surface-variant transition-colors"
+                aria-label="Bağla"
+                className="p-2 rounded-full hover:bg-surface-variant transition-colors text-on-surface-variant"
               >
                 <X size={20} />
               </button>
             </div>
 
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
                 <ShoppingBasket size={40} className="text-on-surface-variant mb-3" />
                 <p className="text-body-md text-on-surface-variant">
                   Səbətiniz boşdur. Məhsul əlavə edin.
@@ -713,11 +719,12 @@ function MenuClientContent({
               </div>
             ) : (
               <>
-                <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-4 pb-4">
+                {/* Scrollable items */}
+                <div className="flex-grow min-h-0 overflow-y-auto p-4 space-y-4 no-scrollbar">
                   {cartItems.map(({ item, quantity }) => (
                     <div
                       key={item._id}
-                      className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm"
+                      className="flex gap-3 bg-surface-container-lowest p-3 rounded-xl shadow-sm border border-surface-container-low"
                     >
                       {item.image ? (
                         <img
@@ -725,92 +732,88 @@ function MenuClientContent({
                           decoding="async"
                           src={item.image}
                           alt={item.name}
-                          className="w-14 h-14 object-cover rounded-xl shrink-0"
+                          className="w-16 h-16 rounded-lg object-cover shrink-0"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-xl bg-surface-container-high shrink-0 flex items-center justify-center text-on-surface-variant">
+                        <div className="w-16 h-16 rounded-lg bg-surface-container-high shrink-0 flex items-center justify-center text-on-surface-variant">
                           <ShoppingBasket size={20} />
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-body-md text-body-md text-on-surface truncate">
-                          {item.name}
-                        </p>
-                        <p className="text-sm text-primary font-bold">
-                          {((item.price ?? 0) * quantity).toFixed(2)} AZN
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => updateQuantity(item._id, quantity - 1)}
-                          className="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center hover:bg-surface-variant transition-colors active:scale-95"
-                          aria-label="Miqdarı azalt"
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <span className="w-6 text-center font-bold text-on-surface">
-                          {quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item._id, quantity + 1)}
-                          className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary/90 transition-colors active:scale-95"
-                          aria-label="Miqdarı artır"
-                        >
-                          <Plus size={16} />
-                        </button>
-                        <button
-                          onClick={() => removeFromCart(item._id)}
-                          className="w-8 h-8 rounded-full text-on-surface-variant flex items-center justify-center hover:bg-surface-variant hover:text-red-500 transition-colors active:scale-95"
-                          aria-label="Səbətdən sil"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                      <div className="flex-grow min-w-0">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-on-surface truncate">
+                            {item.name}
+                          </h4>
+                          <button
+                            onClick={() => removeFromCart(item._id)}
+                            aria-label="Səbətdən sil"
+                            className="text-on-surface-variant opacity-60 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-primary font-bold">
+                            {((item.price ?? 0) * quantity).toFixed(2)} AZN
+                          </span>
+                          <div className="flex items-center gap-3 bg-surface-container-high rounded-full px-2 py-1">
+                            <button
+                              onClick={() => updateQuantity(item._id, quantity - 1)}
+                              aria-label="Miqdarı azalt"
+                              className="w-6 h-6 flex items-center justify-center rounded-full bg-surface-container-lowest shadow-sm text-on-surface"
+                            >
+                              <Minus size={16} />
+                            </button>
+                            <span className="font-bold text-sm text-on-surface min-w-4 text-center">
+                              {quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item._id, quantity + 1)}
+                              aria-label="Miqdarı artır"
+                              className="w-6 h-6 flex items-center justify-center rounded-full bg-primary text-on-primary shadow-sm"
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-surface-variant pt-4 mt-2 space-y-3">
-                  {/* Masa nömrəsi seçimi */}
-                  <label className="block">
-                    <span className="font-label-sm text-label-sm text-on-surface-variant mb-1.5 block">
-                      Masa nömrəsi
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={tableNumber}
-                      onChange={(e) => setTableNumber(e.target.value.replace(/[^\d]/g, ""))}
-                      placeholder="Məs. 12"
-                      className="w-full h-12 px-4 rounded-xl bg-surface-container-lowest border border-surface-container-low text-on-surface placeholder:text-on-surface-variant/60 outline-none focus:border-primary transition-colors"
-                    />
-                  </label>
-
+                {/* Footer */}
+                <div className="p-6 border-t border-surface-variant space-y-4 bg-[#0d1629]">
+                  <div className="flex justify-between items-center">
+                    {tableName && (
+                      <span className="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-sm font-label-sm">
+                        Masa #{tableName}
+                      </span>
+                    )}
+                    <div className="text-right ml-auto">
+                      <span className="text-on-surface-variant text-sm block">
+                        Cəmi: ({totalQuantity} məhsul)
+                      </span>
+                      <span className="text-headline-md font-bold text-on-surface">
+                        {totalPrice.toFixed(2)} AZN
+                      </span>
+                    </div>
+                  </div>
                   {orderError && (
                     <p className="text-sm text-red-400 font-medium px-1">{orderError}</p>
                   )}
-
-                  <div className="flex justify-between items-center">
-                    <span className="font-label-sm text-label-sm text-on-surface-variant">
-                      Cəmi ({totalQuantity} məhsul)
-                    </span>
-                    <span className="font-headline-md text-headline-md text-on-surface">
-                      {totalPrice.toFixed(2)} AZN
-                    </span>
-                  </div>
                   <button
                     type="button"
                     onClick={handleCheckout}
                     disabled={isOrdering || cartItems.length === 0}
-                    className="w-full py-3.5 bg-on-background text-background rounded-2xl font-label-sm text-label-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none"
+                    className="w-full py-4 bg-primary text-on-primary rounded-xl font-bold text-body-lg shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
                   >
                     {isOrdering ? (
                       <>
-                        <span className="w-4 h-4 border-2 border-background/40 border-t-background rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-on-primary/40 border-t-on-primary rounded-full animate-spin" />
                         Göndərilir...
                       </>
                     ) : (
                       <>
-                        <Check size={18} /> Sifarişi təsdiqlə
+                        <Check size={18} /> Sifarişi Təsdiqlə
                       </>
                     )}
                   </button>
@@ -907,6 +910,20 @@ function MenuClientContent({
                 {restaurant.workingHours}
               </span>
             </div>
+          )}
+          {restaurant.phone && (
+            <a
+              href={`tel:${restaurant.phone.replace(/[^\d+]/g, "")}`}
+              className="flex justify-between items-center p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm hover:bg-surface-variant transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Phone size={18} className="text-primary" />
+                <span className="font-bold text-on-surface">Telefon</span>
+              </div>
+              <span className="text-sm text-on-surface-variant">
+                {restaurant.phone}
+              </span>
+            </a>
           )}
           {restaurant.wifiSsid && (
             <div className="p-4 rounded-2xl bg-surface-container-lowest border border-surface-container-low shadow-sm">

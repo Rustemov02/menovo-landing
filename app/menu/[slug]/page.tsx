@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { MenuItem, RestaurantInfo } from "@/types";
 import MenuClient from "./menu-client";
@@ -40,5 +41,12 @@ export default async function MenuPage({
   console.log("Slug:", slug);
   console.log("DATA : ", restaurant, menu);
 
-  return <MenuClient restaurant={restaurant} menu={menu} />;
+  // MenuClient `useSearchParams` istifadə etdiyi üçün prerender zamanı
+  // "URL data outside of Suspense" xətasını qarşısını almaq üçün Suspense
+  // boundary-yə bükülür.
+  return (
+    <Suspense fallback={null}>
+      <MenuClient restaurant={restaurant} menu={menu} />
+    </Suspense>
+  );
 }
