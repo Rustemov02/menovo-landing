@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { CartProvider, useCart } from "@/contexts/CartContext";
+import MenuSkeleton from "@/components/menu/MenuSkeleton";
 
 /**
  * İş saatları (~ "09:00-22:00", "09:00 – 22:00", "09:00–14:00, 17:00-23:00") mətnini
@@ -289,6 +290,16 @@ function MenuClientContent({
   } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Hydrasiya xətasının (#418) qarşısını almaq üçün mount-olunma vəziyyətini
+  // izləyirik. İlk render həm server, həm də client tərəfdə `isMounted === false`
+  // olduğundan skeleton göstərilir və real məzmun yalnız mount olduqdan sonra
+  // client-da render olunur. Bu, `new Date()` (iş saatı) kimi render zamanı
+  // dəyişən dəyərlərin server/client uyğunsuzluğu yaratmasını aradan qaldırır.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const showToast = (type: "success" | "error", message: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast({ type, message });
@@ -426,31 +437,37 @@ function MenuClientContent({
       // Payload: URL parametrlərindən gələn masa məlumatları (tableId, tableName,
       // token) daxil edilir. Manual masa girişi yoxdur.
       //
-      // Hər item-də backend-in gözlədiyi `id`, `name`, `price` və `quantity`
-      // sahələrinin mütləq mövcud və düzgün tipdə olması təmin edilir. `price` və
-      // `quantity` ədədə çevrilir ki, backend-in "Hər məhsulda ad, qiymət və miqdar
-      // olmalıdır" doğrulaması pozulmasın. `id` üçün həm `id` həm də `_id` yoxlanılır.
+      // Backend-in ekspektasiyası: items massivində hər element MÜTLƏQ `name`
+      // (string), `price` (number) və `quantity` (number) açarlarına sahib olmalıdır.
+      // `id` üçün həm `id`, həm də `_id` yoxlanılır. `price` və `quantity` `Number()`
+      // ilə məcburən number tipə çevrilir; `undefined`/`NaN` backend-in 400 xətasına
+      // səbəb olmaması üçün uyğun güzəştli qiymətə (0/1) endirilir.
+      const formattedItems = cartItems.map((cartItem) => {
+        const src = cartItem.item as MenuItem & { title?: string };
+        const price = Number(src.price);
+        const quantity = Number(cartItem.quantity ?? 1);
+        return {
+          id: src.id || src._id,
+          // Backend `name` sahəsini tələb etdiyi üçün hər zaman string olmalıdır
+          // və heç vaxt `undefined` qalmamalıdır.
+          name: String(src.title || src.name || ""),
+          price: Number.isFinite(price) && price >= 0 ? price : 0,
+          quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+        };
+      });
+
       const payload = {
         restaurantId,
-        items: cartItems.map(({ item, quantity }) => {
-          const src = item as MenuItem & { title?: string };
-          const rawPrice = Number(src.price);
-          const rawQuantity = Number(quantity);
-          return {
-            id: src.id || src._id,
-            name: String(src.name || src.title || ""),
-            price: Number.isFinite(rawPrice) ? rawPrice : 0,
-            quantity: Number.isFinite(rawQuantity) ? rawQuantity : 1,
-          };
-        }),
         tableId,
         tableName,
-        // Backend masa tokenini `tableToken` sahəsində gözləyir (`token` kimi
-        // göndərilən sahə tanınmır və "Masa tokeni teleb olunur" xətası verir).
-        tableToken: token,
-        totalPrice: Math.round(totalPrice * 100) / 100,
-        status: "PENDING",
+        token,
+        items: formattedItems,
+        totalAmount: Math.round(Number(totalPrice) * 100) / 100,
       };
+
+      // Debug: request göndərilməzdən əvvəl payload JSON-unu ələ keçir ki, heç bir
+      // sahə `undefined` və ya `NaN` olmasın (bu, 400 Bad Request yaradır).
+      console.log("Order payload:", JSON.stringify(payload));
 
       const res = await fetch(`${baseUrl}/orders`, {
         method: "POST",
@@ -479,6 +496,14 @@ function MenuClientContent({
       setIsOrdering(false);
     }
   };
+
+  // Hydrasyon qoruması: mount edilmədən real məzmunu render etmə. Server prerender
+  // ilə client-ın ilk render-ı hər ikisi isMounted=false səbəbindən skeleton
+  // göstərir → server/client HTML uyğunsuzluğu (React #418 "Hydration failed")
+  // baş vermir.
+  if (!isMounted) {
+    return <MenuSkeleton />;
+  }
 
   return (
     <div
