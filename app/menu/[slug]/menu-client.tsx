@@ -145,7 +145,7 @@ function MenuItemCard({
   return (
     <div
       onClick={() => onSelect(item)}
-      className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-slate-100 transition-transform active:scale-[0.98] cursor-pointer"
+      className="bg-surface-container-lowest pl-2 rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-transform active:scale-[0.98] cursor-pointer"
     >
       {hasImage ? (
         <div className="flex items-center">
@@ -945,14 +945,14 @@ function MenuClientContent({
           Beləliklə modal state false ikən tamamilə DOM-dan silinir və heç bir CSS
           media-query / avtomatik açılma ssenarisində görünə bilməz. */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/70 backdrop-blur-sm md:absolute md:items-center md:justify-center md:p-0">
           <div
             className="absolute inset-0"
             onClick={() => setIsModalOpen(false)}
           />
-          <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl p-6 bg-[#0d1629] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-        <div className="w-12 h-1.5 bg-surface-variant rounded-full mx-auto mb-6" />
-        <div className="flex justify-between items-center mb-6">
+          <div className="relative flex-1 flex flex-col overflow-hidden bg-[#0d1629] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] md:flex-none md:w-full md:max-h-[80vh] md:rounded-2xl">
+        <div className="shrink-0 w-12 h-1.5 bg-surface-variant rounded-full mx-auto mt-3 mb-2 md:hidden" />
+        <div className="shrink-0 flex justify-between items-center px-6 py-5 border-b border-surface-variant md:border-b-0">
           <h2 className="font-headline-md text-headline-md text-on-surface">
             Restoran Haqqında
           </h2>
@@ -963,7 +963,7 @@ function MenuClientContent({
             <X size={20} />
           </button>
         </div>
-        <div className="space-y-6 max-h-[70dvh] overflow-y-auto no-scrollbar pb-6">
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 py-6 space-y-6">
           {restaurant.description && (
             <p className="text-body-md text-on-surface-variant">
               {restaurant.description}
