@@ -249,12 +249,32 @@ function MenuClientContent({
   const searchParams = useSearchParams();
   const tableId = searchParams.get("tableId") ?? undefined;
   const tableName = searchParams.get("tableName") ?? undefined;
-  // Token həm `token`, həm də `tableToken` URL parametr adı ilə gələ bilər;
-  // hər ikisi nəzərə alınır.
-  const token =
-    searchParams.get("token") ??
-    searchParams.get("tableToken") ??
-    undefined;
+
+  // Token QR/paylaşılan link-də müxtəlif parametr adları ilə gələ bilər.
+  // Əvvəlcə tanınmış adlara baxılır, heç biri yoxdursa `tableId`/`tableName`
+  // olmayan ilk parametr dəyəri token kimi götürülür ki, hər format işləsin.
+  const token = useMemo(() => {
+    const knownNames = [
+      "tableToken",
+      "token",
+      "table_token",
+      "accessToken",
+      "access_token",
+      "tableKey",
+      "key",
+      "code",
+      "t",
+    ];
+    for (const name of knownNames) {
+      const value = searchParams.get(name);
+      if (value) return value;
+    }
+    const fallback = Array.from(searchParams.entries()).find(
+      ([key, value]) => key !== "tableId" && key !== "tableName" && value,
+    );
+    return fallback?.[1] ?? undefined;
+  }, [searchParams]);
+
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
 
   // İş saatları varsa hazırkı vaxtla müqayisə edilib açıq/bağlı statusu hesablanır;
