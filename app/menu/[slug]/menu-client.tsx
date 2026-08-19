@@ -133,10 +133,7 @@ function MenuItemCard({
     <>
       <h3 className="font-headline-md text-headline-md text-on-surface truncate">
         {item.name}
-      </h3>
-      {/* Təsvir həmişə render olunur (boş olsa belə) ki, bütün kartlarda mətn
-          sahəsi eyni hündürlükdə olsun. `truncate` ilə 1 sətirdən uzun təsvir
-          ellipsislə kəsilir. */}
+      </h3> 
       <p className="font-body-md text-body-md text-on-surface-variant mt-1 truncate">
         {item.description || ""}
       </p>
@@ -281,20 +278,13 @@ function MenuClientContent({
   // Sifariş (checkout) üçün state-lər: göndərilmə statusu, səhv mesajı və
   // uğurlu təsdiq toast-ının göstərilməsi.
   const [isOrdering, setIsOrdering] = useState(false);
-  const [orderConfirmed, setOrderConfirmed] = useState(false);
-  // Yüngül toast bildirişi — sifariş xətası/uğuru üçün. `showToast` çağırıldıqda
-  // avtomatik olaraq bir neçə saniyədən sonra yox olur.
+  const [orderConfirmed, setOrderConfirmed] = useState(false); 
   const [toast, setToast] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Hydrasiya xətasının (#418) qarşısını almaq üçün mount-olunma vəziyyətini
-  // izləyirik. İlk render həm server, həm də client tərəfdə `isMounted === false`
-  // olduğundan skeleton göstərilir və real məzmun yalnız mount olduqdan sonra
-  // client-da render olunur. Bu, `new Date()` (iş saatı) kimi render zamanı
-  // dəyişən dəyərlərin server/client uyğunsuzluğu yaratmasını aradan qaldırır.
+ 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
@@ -308,9 +298,7 @@ function MenuClientContent({
       toastTimer.current = null;
     }, 4000);
   };
-
-  // Masa məlumatı URL parametrlərindən avtomatik oxunur (QR / paylaşılan link):
-  // `tableId`, `tableName`, `token`. Manual masa daxil etmə yoxdur.
+ 
   const searchParams = useSearchParams();
   const tableId = searchParams.get("tableId") ?? undefined;
   const tableName = searchParams.get("tableName") ?? undefined;
@@ -341,9 +329,7 @@ function MenuClientContent({
   }, [searchParams]);
 
   const systemMode = restaurant.systemMode || "FULL_ORDERING";
-
-  // İş saatları varsa hazırkı vaxtla müqayisə edilib açıq/bağlı statusu hesablanır;
-  // saat datası yoxdursa bu, `null` olur və badge ümumiyyətlə göstərilmir.
+ 
   const openStatus = isRestaurantOpen(restaurant.workingHours);
 
   const grouped = useMemo(() => {
@@ -432,11 +418,8 @@ function MenuClientContent({
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       if (!baseUrl) {
         throw new Error("API URL konfiqurasiyası tapılmadı");
-      }
-
-      // Payload: URL parametrlərindən gələn masa məlumatları (tableId, tableName,
-      // token) daxil edilir. Manual masa girişi yoxdur.
-      //
+      } 
+      
       // Float precision təhlükəsiz cəmləmə: hər `price` `.toFixed(2)` ilə 2 onluq
       // rəqəmə yuvarlanır və ümumi məbləğ (total) EYNİ yuvarlanmış qiymətlərdən
       // dinamik hesablanır. Beləcə backend-in öz recalculate etdiyi cəmlə birey
