@@ -428,8 +428,12 @@ function MenuClientContent({
         const src = cartItem.item as MenuItem & { title?: string };
         const price = Number(Number(src.price).toFixed(2));
         const quantity = Number(cartItem.quantity);
+
+        const itemId =  src.id || src._id || ""
+
         return {
           id: src.id || src._id,
+          menuItemId: itemId,
           // Backend `name` sahəsini tələb etdiyi üçün hər zaman string olmalıdır
           // və heç vaxt `undefined` qalmamalıdır.
           name: String(src.title || src.name || ""),
