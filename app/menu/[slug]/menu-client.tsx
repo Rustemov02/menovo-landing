@@ -530,7 +530,7 @@ function MenuClientContent({
           className={
             embedded
               ? "flex-1 min-h-0 overflow-y-auto pb-6 no-scrollbar bg-background flex flex-col"
-              : "flex-1 min-h-0 pb-6 flex flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background md:pb-32"
+              : "flex-1 min-h-0 pb-6 flex flex-col md:flex-1 md:min-h-0 md:overflow-y-auto md:rounded-[38px] no-scrollbar md:bg-background"
           }
         >
         <header className="relative w-full h-64 bg-surface-container-high">
