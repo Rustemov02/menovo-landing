@@ -437,37 +437,51 @@ function MenuClientContent({
       // Payload: URL parametrlərindən gələn masa məlumatları (tableId, tableName,
       // token) daxil edilir. Manual masa girişi yoxdur.
       //
-      // Backend-in ekspektasiyası: items massivində hər element MÜTLƏQ `name`
-      // (string), `price` (number) və `quantity` (number) açarlarına sahib olmalıdır.
-      // `id` üçün həm `id`, həm də `_id` yoxlanılır. `price` və `quantity` `Number()`
-      // ilə məcburən number tipə çevrilir; `undefined`/`NaN` backend-in 400 xətasına
-      // səbəb olmaması üçün uyğun güzəştli qiymətə (0/1) endirilir.
+      // Float precision təhlükəsiz cəmləmə: hər `price` `.toFixed(2)` ilə 2 onluq
+      // rəqəmə yuvarlanır və ümumi məbləğ (total) EYNİ yuvarlanmış qiymətlərdən
+      // dinamik hesablanır. Beləcə backend-in öz recalculate etdiyi cəmlə birey
+      // match olur və "Umumi mebleg duzgun deyil" 400 xətası aradan qalxır.
       const formattedItems = cartItems.map((cartItem) => {
         const src = cartItem.item as MenuItem & { title?: string };
-        const price = Number(src.price);
-        const quantity = Number(cartItem.quantity ?? 1);
+        const price = Number(Number(src.price).toFixed(2));
+        const quantity = Number(cartItem.quantity);
         return {
           id: src.id || src._id,
           // Backend `name` sahəsini tələb etdiyi üçün hər zaman string olmalıdır
           // və heç vaxt `undefined` qalmamalıdır.
           name: String(src.title || src.name || ""),
+          // NaN/negative qiymətlər backend-in 400 xətasına səbəb olmaması üçün
+          // güzəştli şəkildə 0-a endirilir (float precision yuvarlaqlaşdırma qorunur).
           price: Number.isFinite(price) && price >= 0 ? price : 0,
           quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
         };
       });
 
+      // Ümumi məbləğ cart state-dən deyil, yuxarıdakı yuvarlanmış items-dan
+      // hesablanır → backend-in recalculate etdiyi cəmlə dəqiq uyğunluq.
+      const calculatedTotal = Number(
+        formattedItems
+          .reduce((acc, item) => acc + item.price * item.quantity, 0)
+          .toFixed(2),
+      );
+
+      // Vahid payload strukturu: masa məlumatları üçün alias fallback-lər, ümumi
+      // məbləğ üçün isə `totalAmount`/`totalPrice`/`total` alias-ları göndərilir.
+      // Heç bir sahə `undefined`/`NaN` olmamalıdır (bu, 400 Bad Request yaradır).
       const payload = {
         restaurantId,
-        tableId,
-        tableName,
-        token,
+        tableId: searchParams.get("tableId") || tableId,
+        tableName: searchParams.get("tableName") || tableName,
+        token: searchParams.get("token") || token,
         items: formattedItems,
-        totalAmount: Math.round(Number(totalPrice) * 100) / 100,
+        totalAmount: calculatedTotal,
+        totalPrice: calculatedTotal,
+        total: calculatedTotal,
       };
 
-      // Debug: request göndərilməzdən əvvəl payload JSON-unu ələ keçir ki, heç bir
-      // sahə `undefined` və ya `NaN` olmasın (bu, 400 Bad Request yaradır).
-      console.log("Order payload:", JSON.stringify(payload));
+      // Verification: göndərmədən əvvəl `totalAmount`, `price` və `quantity`-nin
+      // ciddi number olduğunu double-check et.
+      console.log("FINAL PAYLOAD:", JSON.stringify(payload, null, 2));
 
       const res = await fetch(`${baseUrl}/orders`, {
         method: "POST",
