@@ -485,7 +485,7 @@ function MenuClientContent({
       clearCart();
       setIsCartOpen(false);
       setOrderConfirmed(true);
-      showToast("success", "Sifarişiniz mətbəxə göndərildi.");
+      // showToast("success", "Sifarişiniz mətbəxə göndərildi.");
     } catch (e) {
       showToast(
         "error",
@@ -946,7 +946,7 @@ function MenuClientContent({
       {orderConfirmed && (
         <div className="fixed inset-0 z-80 flex items-center justify-center p-6 md:absolute">
           <div className="absolute inset-0 bg-black/60" onClick={() => setOrderConfirmed(false)} />
-          <div className="relative z-10 w-full max-w-sm bg-[#0d1629] rounded-3xl p-8 text-center shadow-[0_-10px_40px_rgba(0,0,0,0.2)] animate-slideUp">
+          <div className="relative z-10 w-full   bg-[#0d1629] rounded-3xl p-8 text-center shadow-[0_-10px_40px_rgba(0,0,0,0.2)] animate-slideUp">
             <div className="w-16 h-16 rounded-full bg-primary/15 text-primary flex items-center justify-center mx-auto mb-4">
               <Check size={32} />
             </div>
