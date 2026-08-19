@@ -4,9 +4,7 @@ import type { MenuItem, RestaurantInfo } from "@/types";
 import MenuClient from "./menu-client";
 import MenuSkeleton from "@/components/menu/MenuSkeleton";
 
-// API-nin 30 saniyədən çox cavab verməsi loading/skeleton vəziyyətini sonsuz
-// saxlamasın deyə fetch-ə timeout tətbiq edirik.
-const FETCH_TIMEOUT_MS = 30_000;
+const FETCH_TIMEOUT_MS = 4000;
 
 interface MenuApiResponse {
   restaurant: RestaurantInfo;
@@ -58,23 +56,23 @@ async function getMenu(slug: string): Promise<MenuApiResponse> {
   }
 }
 
+async function MenuDataFetcher({ slug }: { slug: string }) {
+  const data = await getMenu(slug);
+  const { restaurant, menu } = data;
+
+  return <MenuClient restaurant={restaurant} menu={menu} />
+}
+
 export default async function MenuPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
-  const data = await getMenu(slug);
-  const { restaurant, menu } = data;
+  const { slug } = await params; 
 
-  // MenuClient `useSearchParams` istifadə etdiyi üçün prerender zamanı
-  // "URL data outside of Suspense" xətasını qarşısını almaq üçün Suspense
-  // boundary-yə bükülür. Fallback olaraq skeleton göstərilir ki, searchParams
-  // client-da həll olunana qədər istifadəçi boş ekran deyil, loading UI görsün.
   return (
     <Suspense fallback={<MenuSkeleton />}>
-      <MenuClient restaurant={restaurant} menu={menu} />
+      <MenuDataFetcher slug={slug} />
     </Suspense>
   );
 }
-
