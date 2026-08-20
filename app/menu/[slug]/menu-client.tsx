@@ -546,7 +546,7 @@ function MenuClientContent({
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute top-4 w-full px-4 flex justify-between items-center z-10">
-            {systemMode !== "VIEWER_ONLY" && (
+            {systemMode === "FULL_ORDERING" && (
               <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
